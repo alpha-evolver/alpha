@@ -28,29 +28,85 @@ Alpha 开发的 A 股股票数据接口技能 + 定量分析工具。
 12. **财务比率** - PE, PB, ROE, ROA, 毛利率等
 13. **风险分析** - VaR, CVaR, 夏普比率, Beta
 14. **估值模型** - NPV, IRR, DCF估值
+15. **蒙特卡洛模拟** - 股价路径、期权定价
+16. **Black-Scholes期权定价**
+
+---
+
+## 数据输出规范 (重要)
+
+### 标准分析报告格式
+
+```
+============================================================
+A股市场数据分析报告
+数据周期: 最近60个交易日 -> 取最近22个交易日
+============================================================
+```
+
+#### 单只股票分析输出
+
+| 指标 | 说明 |
+|------|------|
+| 收盘价 | 期初 -> 期末 |
+| 期间涨跌幅 | (期末-期初)/期初 × 100% |
+| 日均收益率 | 日收益率均值 × 100% |
+| 日收益率标准差 | 日收益率标准差 × 100% |
+| 年化波动率 | 日标准差 × √252 |
+| 夏普比率 | (日均收益/日标准差) × √252 |
+| 95% VaR | 5%分位数收益率 × 100% |
+| 期间振幅 | (最高-最低)/最低 × 100% |
+
+#### 多股票对比分析
+
+1. **相关系数矩阵** - 两两股票的相关系数
+2. **夏普比率排名** - 风险调整后收益从高到低
+3. **波动率排名** - 风险从低到高
+4. **综合评价** - 最佳风险收益比、最低波动率
+
+### 数据拉取规则
+
+```
+周期: 最近60个交易日
+取数: 最近22个交易日 (用于分析)
+```
+
+### 使用示例
+
+```python
+from alfe import QuantAnalyzer
+import numpy as np
+
+qa = QuantAnalyzer()
+
+# 连接服务器 (自动寻找可用服务器)
+for i in range(20):
+    if qa.connect(i):
+        break
+
+# 获取K线数据
+bars = qa.api.get_security_bars(9, market, code, 0, 60)
+
+# 取最近22条
+recent_bars = bars[:22]
+closes = [float(b['close']) for b in recent_bars]
+
+# 计算收益率
+returns = [(closes[i] - closes[i-1]) / closes[i-1] for i in range(1, len(closes))]
+
+# 核心指标计算
+mean_return = np.mean(returns) * 100
+std_return = np.std(returns, ddof=1) * 100
+volatility = std_return * np.sqrt(252)  # 年化波动率
+sharpe = mean_return / std_return * np.sqrt(252) if std_return > 0 else 0
+var_95 = np.percentile(returns, 5) * 100  # 95% VaR
+
+qa.disconnect()
+```
 
 ## 数据源
 
 使用券商行情服务器协议，无需 Token，直接连接券商服务器获取数据。
-
-## 使用方法
-
-```python
-from alfe import AlfeHq_API, QuantAnalyzer
-
-# 行情数据
-api = AlfeHq_API()
-api.connect(ip='服务器IP', port=7709)
-quotes = api.get_security_quotes([(0, '000001')])
-api.disconnect()
-
-# 定量分析
-qa = QuantAnalyzer()
-qa.connect(0)  # 连接服务器
-finance = qa.get_finance_data(0, '000001')
-ratios = qa.calc_financial_ratios(finance)
-qa.disconnect()
-```
 
 ## 服务器列表
 
@@ -64,4 +120,4 @@ qa.disconnect()
 ## 版本
 
 Alpha 开发
-版本号: 1.1.0
+版本号: 1.2.0
