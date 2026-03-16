@@ -44,6 +44,41 @@ class QuantAnalyzer:
             print(f"已连接: {host[0]}")
         return result
     
+    def connect_auto(self, max_servers=10):
+        """自动连接可用服务器
+        
+        Args:
+            max_servers: 最大尝试服务器数量
+            
+        Returns:
+            bool: 是否连接成功
+        """
+        if not ALFE_AVAILABLE:
+            raise Exception("alfe模块不可用")
+        
+        self.api = AlfeHq_API()
+        
+        for i in range(min(max_servers, len(hq_hosts))):
+            host = hq_hosts[i]
+            ip, port = host[1], host[2]
+            try:
+                print(f"尝试连接: {host[0]} ({ip}:{port})...")
+                result = self.api.connect(ip, port)
+                if result:
+                    self.connected = True
+                    print(f"✓ 成功连接: {host[0]}")
+                    return True
+            except Exception as e:
+                print(f"✗ 失败: {host[0]} - {e}")
+                try:
+                    self.api.disconnect()
+                except:
+                    pass
+                continue
+        
+        print("无法找到可用的行情服务器")
+        return False
+    
     def disconnect(self):
         """断开连接"""
         if self.api and self.connected:
