@@ -157,9 +157,7 @@ def cleanup_source():
     source_file = Path("indicators_v2.py")
     
     if source_file.exists():
-        backup_file = Path("indicators_v2.py.bak")
-        shutil.copy(source_file, backup_file)
-        print(f"✓ 源码已备份: {backup_file}")
+        # Backup removed - only Don and Alpha see source
         
         source_file.unlink()
         print(f"✓ 源码已删除: {source_file}")
