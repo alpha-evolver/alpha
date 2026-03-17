@@ -1,16 +1,95 @@
-# Custom Indicators - System 1 & System 2
-# 两个独立指标系统 - 简洁中文输出
+# Custom Indicators - System 1 & System 2 + Quant
+# 两个独立指标系统 + CFA定量分析
 
 import numpy as np
 import pandas as pd
-from typing import Tuple, Dict, List
+from typing import Tuple, Dict
 from math import pi
 
 
-# ==================== 系统1: daily_data_3_14_0 逻辑 ====================
+# ==================== Quant CFA 分析 ====================
+
+def calc_returns(prices: pd.Series) -> pd.Series:
+    """计算收益率"""
+    return prices.pct_change().dropna()
+
+
+def calc_sharpe(returns: pd.Series, risk_free: float = 0.03) -> float:
+    """夏普比率"""
+    rp = returns.mean() * 252
+    sigma = returns.std() * np.sqrt(252)
+    return (rp - risk_free) / sigma if sigma > 0 else 0
+
+
+def calc_var(returns: pd.Series, confidence: float = 0.95) -> float:
+    """VaR - 风险价值"""
+    return returns.quantile(1 - confidence)
+
+
+def calc_max_drawdown(returns: pd.Series) -> float:
+    """最大回撤"""
+    cum = (1 + returns).cumprod()
+    cummax = cum.cummax()
+    drawdown = cum / cummax - 1
+    return drawdown.min()
+
+
+def calc_beta(stock_returns: pd.Series, market_returns: pd.Series) -> float:
+    """Beta系数"""
+    if len(stock_returns) < 2 or len(market_returns) < 2:
+        return 1.0
+    cov = np.cov(stock_returns, market_returns)[0, 1]
+    var = np.var(market_returns)
+    return cov / var if var > 0 else 1.0
+
+
+def calc_volatility(returns: pd.Series) -> float:
+    """年化波动率"""
+    return returns.std() * np.sqrt(252)
+
+
+def quant_analyze(df: pd.DataFrame) -> Dict:
+    """CFA定量分析"""
+    close = df['close']
+    returns = calc_returns(close)
+    
+    if len(returns) < 10:
+        return {
+            '期间涨跌幅': 0,
+            '日均收益率': 0,
+            '日收益率标准差': 0,
+            '年化波动率': 0,
+            '夏普比率': 0,
+            '95%VaR': 0,
+            '最大回撤': 0,
+            'Beta': 1.0,
+        }
+    
+    # 计算涨跌幅
+    start_price = close.iloc[0]
+    end_price = close.iloc[-1]
+    total_return = (end_price - start_price) / start_price * 100
+    
+    # 简化Beta (假设市场收益为0)
+    beta = 1.0
+    
+    result = {
+        '期间涨跌幅': f"{total_return:.2f}%",
+        '日均收益率': f"{returns.mean()*100:.4f}%",
+        '日收益率标准差': f"{returns.std()*100:.4f}%",
+        '年化波动率': f"{calc_volatility(returns)*100:.2f}%",
+        '夏普比率': f"{calc_sharpe(returns):.2f}",
+        '95%VaR': f"{calc_var(returns)*100:.2f}%",
+        '最大回撤': f"{calc_max_drawdown(returns)*100:.2f}%",
+        'Beta': f"{beta:.2f}",
+    }
+    
+    return result
+
+
+# ==================== 系统1 ====================
 
 def predict_next_price(previous_price: float, current_price: float) -> Tuple[float, float]:
-    """预测下一日收盘价"""
     if not isinstance(previous_price, (int, float)) or not isinstance(current_price, (int, float)):
         return np.nan, np.nan
     if pd.isna(previous_price) or pd.isna(current_price) or previous_price == 0:
@@ -41,11 +120,10 @@ def system1_macd(close: pd.Series, fast: int = 12, slow: int = 26, signal: int =
 
 
 def system1_analyze(df: pd.DataFrame) -> Dict:
-    """系统1分析 - 简洁中文输出"""
     close = df['close']
     open_price = df['open']
     
-    # 预测收盘价
+    # 预测
     predicted = []
     for i in range(1, len(close)):
         pred, _ = predict_next_price(close.iloc[i-1], close.iloc[i])
@@ -64,10 +142,9 @@ def system1_analyze(df: pd.DataFrame) -> Dict:
     trend.loc[close < lower] = "空头趋势"
     trend.loc[(close <= upper) & (close >= lower)] = "交易范围"
     
-    # 支撑/压力位
+    # 支撑/压力
     support = pd.Series(index=close.index, dtype=float)
     pressure = pd.Series(index=close.index, dtype=float)
-    
     support.loc[close > upper] = upper
     pressure.loc[close < lower] = lower
     in_range = (close <= upper) & (close >= lower)
@@ -82,7 +159,7 @@ def system1_analyze(df: pd.DataFrame) -> Dict:
     redundancy.loc[close < lower] = lower - open_price * 0.02
     redundancy.loc[(close <= upper) & (close >= lower)] = mid
     
-    # Regime信号
+    # Regime
     alpha_space = macd.max() - macd.min()
     alphalens = close / alpha_space if alpha_space > 0 else np.nan
     fast = alphalens.rolling(1).mean()
@@ -95,21 +172,18 @@ def system1_analyze(df: pd.DataFrame) -> Dict:
     
     strategy = regime.replace({1: "买入", 0: "等待", -1: "卖出"})
     
-    # 简洁输出
-    latest = {
+    return {
         '收盘价': close.iloc[-1],
         '收期价': predicted[-1],
-        '支撑位': support.iloc[-1],
-        '压力位': pressure.iloc[-1],
-        '冗余位': redundancy.iloc[-1],
+        '支撑位': round(support.iloc[-1], 2) if pd.notna(support.iloc[-1]) else None,
+        '压力位': round(pressure.iloc[-1], 2) if pd.notna(pressure.iloc[-1]) else None,
+        '冗余位': round(redundancy.iloc[-1], 2) if pd.notna(redundancy.iloc[-1]) else None,
         '量化趋势': trend.iloc[-1],
         '策略': strategy.iloc[-1],
     }
-    
-    return latest
 
 
-# ==================== 系统2: new_analysis_script 逻辑 ====================
+# ==================== 系统2 ====================
 
 def system2_bollinger(close: pd.Series, period: int = 19):
     mid = close.rolling(window=period).mean()
@@ -130,10 +204,8 @@ def system2_atr(high: pd.Series, low: pd.Series, close: pd.Series, period: int =
 
 
 def system2_analyze(df: pd.DataFrame) -> Dict:
-    """系统2分析 - 简洁中文输出"""
     close = df['close']
     
-    # 布林带
     upper, lower = system2_bollinger(close)
     
     # 预测
@@ -161,21 +233,18 @@ def system2_analyze(df: pd.DataFrame) -> Dict:
     strategy.loc[buy_medium] = '中买'
     strategy.loc[sell] = '卖出'
     
-    # 简洁输出
-    latest = {
+    return {
         '收盘价': close.iloc[-1],
         '收期价': predicted[-1],
-        '支撑位': lower.iloc[-1],
-        '压力位': upper.iloc[-1],
-        '冗余位': np.nan,
+        '支撑位': round(lower.iloc[-1], 2),
+        '压力位': round(upper.iloc[-1], 2),
+        '冗余位': None,
         '量化趋势': '交易范围',
         '策略': strategy.iloc[-1],
     }
-    
-    return latest
 
 
-# ==================== 手续费计算 ====================
+# ==================== 回测 ====================
 
 def calc_fee(price: float, shares: int = 100) -> float:
     fee = price * shares * 0.0003
@@ -184,11 +253,8 @@ def calc_fee(price: float, shares: int = 100) -> float:
 
 def calc_net_return(gross_return: float, price: float, shares: int = 100) -> float:
     fee = calc_fee(price, shares) * 2
-    gross_profit = price * shares * gross_return
-    return (gross_profit - fee) / (price * shares)
+    return (price * shares * gross_return - fee) / (price * shares)
 
-
-# ==================== 回测 ====================
 
 def run_backtest(df: pd.DataFrame, system: int = 1, profit_target: float = 0.02, shares: int = 100) -> Dict:
     close = df['close']
@@ -246,21 +312,24 @@ def run_backtest(df: pd.DataFrame, system: int = 1, profit_target: float = 0.02,
                 position = None
     
     if not trades:
-        return {'交易次数': 0, '胜率': 0, '总收益': 0}
+        return {'交易次数': 0, '胜率': '0%', '总收益': '0%'}
     
     wins = sum(1 for t in trades if t.get('ret', 0) > 0)
     total = sum(t.get('ret', 0) for t in trades)
     
     return {
         '交易次数': len(trades),
-        '胜率': f"{wins}/{len(trades)} = {wins/len(trades)*100:.1f}%",
+        '胜率': f"{wins}/{len(trades)} ({wins/len(trades)*100:.1f}%)",
         '总收益': f"{total*100:.2f}%"
     }
 
 
 def analyze_with_systems(df: pd.DataFrame, ts_code: str = None) -> Dict:
-    """分析两个系统"""
+    """完整分析 + Quant"""
+    quant = quant_analyze(df)
+    
     return {
+        '量化分析': quant,
         '系统1': system1_analyze(df),
         '系统2': system2_analyze(df)
     }
