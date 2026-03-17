@@ -1,11 +1,38 @@
 ---
 name: alfe
-description: Alpha 开发的 A股股票行情数据接口技能 + CFA定量分析。基于券商行情协议，支持获取实时行情、K线数据、公司信息、财务数据，以及完整的CFA定量分析功能。
+description: Alpha 开发的 A股股票行情数据接口技能 + CFA定量分析 + 双系统指标(趋势/投机)。支持获取实时行情、K线数据、公司信息、财务数据，以及完整的CFA定量分析和双系统止盈止损回测。
 ---
 
 # Alfe 技能
 
-Alpha 开发的 A 股股票数据接口技能 + 定量分析工具。
+Alpha 开发的 A 股股票数据接口技能 + 定量分析工具 + 双系统指标。
+
+## 安装
+
+### 方式1: 自动安装 (推荐)
+
+```bash
+cd alfe/
+python3 build_auto.py
+```
+
+脚本会自动：
+1. 检测平台 (Linux/WSL/macOS)
+2. 安装依赖 (Cython, GCC)
+3. 编译对应二进制 (.so)
+4. 测试功能
+5. 删除源码保护知识产权
+
+### 方式2: 手动安装
+
+```bash
+# 安装依赖
+pip install numpy pandas scipy
+
+# 克隆仓库
+git clone https://github.com/alpha-evolver/alpha.git
+cd alpha/alfe
+```
 
 ## 功能列表
 
@@ -30,6 +57,77 @@ Alpha 开发的 A 股股票数据接口技能 + 定量分析工具。
 14. **估值模型** - NPV, IRR, DCF估值
 15. **蒙特卡洛模拟** - 股价路径、期权定价
 16. **Black-Scholes期权定价**
+
+### 双系统指标 (v1.3+)
+
+#### 系统1: 趋势策略
+- 源码已编译为 .so 保护
+- 布林带 + MACD 趋势判断
+- 次日2%止盈 + 移动止盈
+- 跌破布林带上轨止损
+
+#### 系统2: 投机策略
+- 源码已编译为 .so 保护
+- 布林带 + ATR 投机信号
+- 次日2%止盈 + 移动止盈
+- 2倍ATR止损 / 3倍ATR止盈
+
+### 回测功能
+- 完整止盈止损回测
+- 手续费计算 (A股: 万三，不足5元按5元)
+- 夏普比率、最大回撤、盈亏比统计
+
+---
+
+## 使用示例
+
+### 双系统分析
+
+```python
+from alfe import analyze_with_systems, run_full_backtest
+import pandas as pd
+
+# 分析
+result = analyze_with_systems(df, '600519.SH')
+
+# 系统1建议
+print(result['system1']['advice'])   # 买入/卖出/观望
+
+# 系统2建议  
+print(result['system2']['advice'])   # 短买/中买/卖出/等待
+```
+
+### 回测
+
+```python
+from alfe import run_full_backtest
+
+# 带止盈止损回测
+result = run_full_backtest(
+    df, 
+    profit_target=0.02,      # 次日2%止盈
+    trailing_percent=0.02,    # 移动止盈回落2%
+    shares=100
+)
+
+print(result['system1']['summary'])
+# {'total': 488, 'win_rate': 51.8, 'total_return': 519.95, ...}
+```
+
+### 定量分析
+
+```python
+from alfe import QuantAnalyzer
+
+qa = QuantAnalyzer()
+qa.connect_auto()
+
+# 获取数据并分析
+bars = qa.api.get_security_bars(9, market, code, 0, 60)
+# ... 分析计算
+
+qa.disconnect()
+```
 
 ---
 
@@ -71,38 +169,7 @@ A股市场数据分析报告
 取数: 最近22个交易日 (用于分析)
 ```
 
-### 使用示例
-
-```python
-from alfe import QuantAnalyzer
-import numpy as np
-
-qa = QuantAnalyzer()
-
-# 连接服务器 (自动寻找可用服务器)
-for i in range(20):
-    if qa.connect(i):
-        break
-
-# 获取K线数据
-bars = qa.api.get_security_bars(9, market, code, 0, 60)
-
-# 取最近22条
-recent_bars = bars[:22]
-closes = [float(b['close']) for b in recent_bars]
-
-# 计算收益率
-returns = [(closes[i] - closes[i-1]) / closes[i-1] for i in range(1, len(closes))]
-
-# 核心指标计算
-mean_return = np.mean(returns) * 100
-std_return = np.std(returns, ddof=1) * 100
-volatility = std_return * np.sqrt(252)  # 年化波动率
-sharpe = mean_return / std_return * np.sqrt(252) if std_return > 0 else 0
-var_95 = np.percentile(returns, 5) * 100  # 95% VaR
-
-qa.disconnect()
-```
+---
 
 ## 数据源
 
@@ -116,8 +183,9 @@ qa.disconnect()
 
 - 需要能访问券商服务器网络
 - 遵守券商使用协议
+- 源码已编译为二进制保护，如需修改请修改 .py.bak 后重新编译
 
 ## 版本
 
 Alpha 开发
-版本号: 1.2.0
+版本号: 1.3.0
