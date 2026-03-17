@@ -1,191 +1,165 @@
----
-name: alfe
-description: Alpha 开发的 A股股票行情数据接口技能 + CFA定量分析 + 双系统指标(趋势/投机)。支持获取实时行情、K线数据、公司信息、财务数据，以及完整的CFA定量分析和双系统止盈止损回测。
----
+# Alfe - A-Share Stock Market Data & Quantitative Analysis Skill
 
-# Alfe 技能
+**Developed by Alpha**  
+Alfe is a powerful, locally-run Python skill that provides **A-share (China) stock market data access**, combined with **CFA-level quantitative analysis tools** and a **dual-system trading indicator framework** (Trend + Speculative).  
 
-Alpha 开发的 A 股股票数据接口技能 + 定量分析工具 + 双系统指标。
+It supports real-time quotes, K-line data, company fundamentals, financial metrics, and full backtesting with profit/loss controls.
 
-## 安装
+Version: **1.3.0**
 
-### 方式1: 自动安装 (推荐)
+## Features Overview
 
+### Market Data
+1. **Real-time Quotes** — Current price, change %, volume, turnover, etc.
+2. **K-Line Data** — Daily, weekly, monthly, minute-level bars
+3. **Intraday Tick Data** — Today's minute-by-minute chart
+4. **Historical Tick-by-Tick** — Full trade-by-trade history
+
+### Company & Fundamentals
+5. **Company Profile** — Basic information of listed companies
+6. **Financial Statements** — Key financial metrics
+7. **Dividend & Split History** — Ex-dividend, bonus shares, rights issues
+
+### Quantitative Analysis (CFA L1–L3 Level)
+8. **Basic Statistics** — Mean, variance, std dev, skewness, kurtosis
+9. **Correlation & Covariance** — Pairwise stock relationships
+10. **Regression Analysis** — Linear regression, R², t-tests
+11. **Time Series** — Moving averages, exponential smoothing
+12. **Financial Ratios** — PE, PB, ROE, ROA, gross margin, etc.
+13. **Risk Metrics** — VaR, CVaR, Sharpe ratio, Beta
+14. **Valuation Models** — NPV, IRR, DCF
+15. **Monte Carlo Simulation** — Price path simulation, option pricing
+16. **Black-Scholes Option Pricing**
+
+### Dual-System Trading Indicators (v1.3+)
+Both systems are compiled into `.so` binaries for source protection.
+
+#### System 1: Trend Strategy
+- Bollinger Bands + MACD for trend detection
+- Next-day 2% take-profit + trailing profit protection
+- Stop-loss when price breaks below upper Bollinger Band
+
+#### System 2: Speculative (Momentum/Reversal) Strategy
+- Bollinger Bands + ATR for entry signals
+- Next-day 2% take-profit + trailing stop
+- Stop-loss at 2× ATR / Take-profit at 3× ATR
+
+### Backtesting Engine
+- Full simulation with take-profit / stop-loss / trailing rules
+- Realistic A-share commission: 0.03% per side (minimum ¥5)
+- Performance metrics: Sharpe ratio, max drawdown, win rate, profit/loss ratio, etc.
+
+## Installation
+
+### Recommended: Automatic Installation
 ```bash
 cd alfe/
 python3 build_auto.py
 ```
+The script automatically:
+1. Detects your platform (Linux / WSL / macOS)
+2. Installs dependencies (Cython, GCC, etc.)
+3. Compiles the protected `.so` binary
+4. Runs functionality tests
+5. Deletes source files to protect intellectual property
 
-脚本会自动：
-1. 检测平台 (Linux/WSL/macOS)
-2. 安装依赖 (Cython, GCC)
-3. 编译对应二进制 (.so)
-4. 测试功能
-5. 删除源码保护知识产权
-
-### 方式2: 手动安装
-
+### Manual Installation
 ```bash
-# 安装依赖
+# Install core dependencies
 pip install numpy pandas scipy
 
-# 克隆仓库
+# Clone the repository
 git clone https://github.com/alpha-evolver/alpha.git
 cd alpha/alfe
+# Then run the build script or manually compile if customized
 ```
 
-## 功能列表
+## Quick Start Examples
 
-### 行情数据
-1. **实时行情** - 获取股票实时涨跌幅、成交量等
-2. **K线数据** - 日/周/月/分钟K线
-3. **分时数据** - 当日分时走势
-4. **历史分笔** - 历史逐笔成交
-
-### 公司与财务
-5. **公司信息** - 上市公司基本信息
-6. **财务数据** - 财务指标查询
-7. **除权除息** - 分红送股信息
-
-### 定量分析 (CFA L1-L3)
-8. **基础统计** - 均值、方差、标准差、偏度、峰度
-9. **相关性分析** - 相关系数、协方差
-10. **回归分析** - 线性回归、R²、t检验
-11. **时间序列** - 移动平均、指数平滑
-12. **财务比率** - PE, PB, ROE, ROA, 毛利率等
-13. **风险分析** - VaR, CVaR, 夏普比率, Beta
-14. **估值模型** - NPV, IRR, DCF估值
-15. **蒙特卡洛模拟** - 股价路径、期权定价
-16. **Black-Scholes期权定价**
-
-### 双系统指标 (v1.3+)
-
-#### 系统1: 趋势策略
-- 源码已编译为 .so 保护
-- 布林带 + MACD 趋势判断
-- 次日2%止盈 + 移动止盈
-- 跌破布林带上轨止损
-
-#### 系统2: 投机策略
-- 源码已编译为 .so 保护
-- 布林带 + ATR 投机信号
-- 次日2%止盈 + 移动止盈
-- 2倍ATR止损 / 3倍ATR止盈
-
-### 回测功能
-- 完整止盈止损回测
-- 手续费计算 (A股: 万三，不足5元按5元)
-- 夏普比率、最大回撤、盈亏比统计
-
----
-
-## 使用示例
-
-### 双系统分析
-
+### Dual-System Analysis
 ```python
-from alfe import analyze_with_systems, run_full_backtest
+from alfe import analyze_with_systems
 import pandas as pd
 
-# 分析
+# Assume df is a DataFrame with OHLCV data for the stock
 result = analyze_with_systems(df, '600519.SH')
 
-# 系统1建议
-print(result['system1']['advice'])   # 买入/卖出/观望
-
-# 系统2建议  
-print(result['system2']['advice'])   # 短买/中买/卖出/等待
+print(result['system1']['advice'])   # e.g. "Buy", "Sell", "Hold"
+print(result['system2']['advice'])   # e.g. "Short-term Buy", "Sell", "Wait"
 ```
 
-### 回测
-
+### Full Backtest with Stops
 ```python
 from alfe import run_full_backtest
 
-# 带止盈止损回测
 result = run_full_backtest(
-    df, 
-    profit_target=0.02,      # 次日2%止盈
-    trailing_percent=0.02,    # 移动止盈回落2%
+    df,
+    profit_target=0.02,         # Initial take-profit: +2% next day
+    trailing_percent=0.02,      # Trail stops after 2% drawdown from high
     shares=100
 )
 
 print(result['system1']['summary'])
-# {'total': 488, 'win_rate': 51.8, 'total_return': 519.95, ...}
+# Example output:
+# {'total_trades': 488, 'win_rate': 51.8%, 'total_return': 519.95%, ...}
 ```
 
-### 定量分析
-
+### Quantitative Analysis
 ```python
 from alfe import QuantAnalyzer
 
 qa = QuantAnalyzer()
-qa.connect_auto()
+qa.connect_auto()  # Auto-select available broker server
 
-# 获取数据并分析
-bars = qa.api.get_security_bars(9, market, code, 0, 60)
-# ... 分析计算
+# Example: fetch 60 daily bars
+bars = qa.api.get_security_bars(period=9, market=0, code='600519', start=0, count=60)
+
+# ... perform analysis ...
 
 qa.disconnect()
 ```
 
----
-
-## 数据输出规范 (重要)
-
-### 标准分析报告格式
+## Standard Analysis Report Format
 
 ```
 ============================================================
-A股市场数据分析报告
-数据周期: 最近60个交易日 -> 取最近22个交易日
+A-Share Market Quantitative Analysis Report
+Data Period: Last 60 trading days → Analysis on most recent 22 days
 ============================================================
 ```
 
-#### 单只股票分析输出
+### Single Stock Report (Table Example)
 
-| 指标 | 说明 |
-|------|------|
-| 收盘价 | 期初 -> 期末 |
-| 期间涨跌幅 | (期末-期初)/期初 × 100% |
-| 日均收益率 | 日收益率均值 × 100% |
-| 日收益率标准差 | 日收益率标准差 × 100% |
-| 年化波动率 | 日标准差 × √252 |
-| 夏普比率 | (日均收益/日标准差) × √252 |
-| 95% VaR | 5%分位数收益率 × 100% |
-| 期间振幅 | (最高-最低)/最低 × 100% |
+| Metric                  | Description                              |
+|-------------------------|------------------------------------------|
+| Closing Price           | Start → End                              |
+| Period Return           | (End - Start)/Start × 100%               |
+| Daily Mean Return       | Mean daily return × 100%                 |
+| Daily Return Std Dev    | Standard deviation of daily returns × 100% |
+| Annualized Volatility   | Daily std × √252                         |
+| Sharpe Ratio            | (Daily mean / Daily std) × √252          |
+| 95% VaR                 | 5% quantile of returns × 100%            |
+| Period Amplitude        | (High - Low)/Low × 100%                  |
 
-#### 多股票对比分析
+### Multi-Stock Comparison
+- Correlation matrix
+- Sharpe ratio ranking (highest to lowest)
+- Volatility ranking (lowest to highest risk)
+- Overall evaluation: Best risk-adjusted return, lowest volatility picks
 
-1. **相关系数矩阵** - 两两股票的相关系数
-2. **夏普比率排名** - 风险调整后收益从高到低
-3. **波动率排名** - 风险从低到高
-4. **综合评价** - 最佳风险收益比、最低波动率
+## Data Pulling Rules
+- Historical window: Last **60 trading days**
+- Analysis window: Most recent **22 trading days**
 
-### 数据拉取规则
+## Data Source
+Connects directly to Chinese brokerage market servers (no token/API key required).  
+Multiple built-in servers (see `config/hosts.py`).
 
-```
-周期: 最近60个交易日
-取数: 最近22个交易日 (用于分析)
-```
+## Important Notes
+- Requires network access to Chinese brokerage quote servers
+- Must comply with the terms of service of the connected broker
+- Core indicator logic is compiled into binary (.so) for protection
+- To modify logic: edit `.py.bak` backup files and recompile
 
----
-
-## 数据源
-
-使用券商行情服务器协议，无需 Token，直接连接券商服务器获取数据。
-
-## 服务器列表
-
-内置多个券商服务器（详见 config/hosts.py）
-
-## 注意事项
-
-- 需要能访问券商服务器网络
-- 遵守券商使用协议
-- 源码已编译为二进制保护，如需修改请修改 .py.bak 后重新编译
-
-## 版本
-
-Alpha 开发
-版本号: 1.3.0
+Developed by **Alpha**  
+Version **1.3.0**
