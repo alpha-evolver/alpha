@@ -235,13 +235,13 @@ def calc_fee(price, shares=100):
     return max(price * shares * 0.0003, 5)
 
 
+def calc_net(gross, price, shares=100):
+    return (price * shares * gross - calc_fee(price, shares) * 2) / (price * shares)
+
+
 def calc_net_return(gross, price, shares=100):
     """Calculate net return percentage"""
     return (gross - 1) * 100
-
-
-def calc_net(gross, price, shares=100):
-    return (price * shares * gross - calc_fee(price, shares) * 2) / (price * shares)
 
 
 def run_backtest(df, system=1, profit_target=0.02, shares=100):
@@ -345,6 +345,38 @@ def run_full_backtest(df, profit_target=0.02, shares=100):
         'System 1': run_backtest(df, 1, profit_target, shares),
         'System 2': run_backtest(df, 2, profit_target, shares)
     }
+
+
+# ==================== Additional Functions ====================
+
+def system1_bollinger(df: pd.DataFrame) -> Dict:
+    """System 1 Bollinger Bands - wrapper for system1_analyze"""
+    return system1_analyze(df)
+
+
+def system1_macd(df: pd.DataFrame) -> Dict:
+    """System 1 MACD - wrapper for system1_analyze"""
+    return system1_analyze(df)
+
+
+def system1_regime(df: pd.DataFrame) -> Dict:
+    """System 1 Regime detection - wrapper for system1_analyze"""
+    return system1_analyze(df)
+
+
+def system2_bollinger(df: pd.DataFrame) -> Dict:
+    """System 2 Bollinger Bands - wrapper for system2_analyze"""
+    return system2_analyze(df)
+
+
+def system2_atr(df: pd.DataFrame) -> Dict:
+    """System 2 ATR - wrapper for system2_analyze"""
+    return system2_analyze(df)
+
+
+def system2_signals(df: pd.DataFrame) -> Dict:
+    """System 2 Signals - wrapper for system2_analyze"""
+    return system2_analyze(df)
 
 
 def run_backtest_with_stops(df, system=1, profit_target=0.02, shares=100):
