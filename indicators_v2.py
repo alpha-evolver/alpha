@@ -235,6 +235,11 @@ def calc_fee(price, shares=100):
     return max(price * shares * 0.0003, 5)
 
 
+def calc_net_return(gross, price, shares=100):
+    """Calculate net return percentage"""
+    return (gross - 1) * 100
+
+
 def calc_net(gross, price, shares=100):
     return (price * shares * gross - calc_fee(price, shares) * 2) / (price * shares)
 
@@ -340,3 +345,8 @@ def run_full_backtest(df, profit_target=0.02, shares=100):
         'System 1': run_backtest(df, 1, profit_target, shares),
         'System 2': run_backtest(df, 2, profit_target, shares)
     }
+
+
+def run_backtest_with_stops(df, system=1, profit_target=0.02, shares=100):
+    """Backtest with take-profit/stop-loss - alias for run_backtest"""
+    return run_backtest(df, system, profit_target, shares)
