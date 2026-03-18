@@ -12,10 +12,10 @@ class GetInstrumentInfo(BaseParser):
     01 08 04 0b 00 01 0b 00 0b 00
 
     00 24
-    08 类别
+    08 Category
     00 00 00 00
-    26 00  数量  38 个
-    01 00 未知
+    26 00  Count  38 items
+    01 00 Unknown
 
     In [8]: 11402/38
     Out[8]: 300.05263157894734

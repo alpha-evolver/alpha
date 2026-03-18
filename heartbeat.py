@@ -5,10 +5,10 @@ import random
 from alfe.log import DEBUG, log
 import time
 
-# 参考 :https://stackoverflow.com/questions/6524459/stopping-a-thread-after-a-certain-amount-of-time
+# Ref: https://stackoverflow.com/questions/6524459/stopping-a-thread-after-a-certain-amount-of-time
 
 
-DEFAULT_HEARTBEAT_INTERVAL = 10.0 # 10秒一个heartbeat
+DEFAULT_HEARTBEAT_INTERVAL = 10.0  # 10 seconds per heartbeat
 
 class HqHeartBeatThread(Thread):
 
@@ -24,9 +24,8 @@ class HqHeartBeatThread(Thread):
             self.stop_event.wait(self.heartbeat_interval)
             if self.client and (time.time() - self.api.last_ack_time > self.heartbeat_interval):
                 try:
-                    # 发送一个获取股票数量的包作为心跳包
+                    # Send a packet to get stock count as heartbeat
                     self.api.do_heartbeat()
                 except Exception as e:
                     log.debug(str(e))
-
 

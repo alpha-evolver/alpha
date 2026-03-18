@@ -1,6 +1,5 @@
 # coding=utf-8
 
-    
 from alfe.parser.base import BaseParser
 from alfe.helper import get_datetime, get_volume, get_price
 from collections import OrderedDict
@@ -42,7 +41,7 @@ class GetHistoryInstrumentBarsRange(BaseParser):
         return (num // 60) , (num % 60)
 
     def parseResponse(self, body_buf):
-#        print('测试', body_buf)
+#        print('Test', body_buf)
 #        fileobj = open("a.bin", 'wb')  # make partfile
 #        fileobj.write(body_buf)  # write data into partfile
 #        fileobj.close()
@@ -53,7 +52,7 @@ class GetHistoryInstrumentBarsRange(BaseParser):
         klines=[]
         pos = 12
 
-        # 算了，前面不解析了，没太大用
+        # Calculate, previous part is not parsed, not very useful
         # (market, code) = struct.unpack("<B9s", body_buf[0: 10]
 
         (ret_count,) = struct.unpack("H", body_buf[pos: pos+2])

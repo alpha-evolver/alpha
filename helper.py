@@ -4,7 +4,7 @@ import struct
 import six
 
 
-#### XXX: 分析了一下，貌似是类似utf-8的编码方式保存有符号数字
+#### XXX: Analyzed, seems to be a UTF-8-like encoding for signed numbers
 def get_price(data, pos):
     pos_byte = 6
     bdata = indexbytes(data, pos)

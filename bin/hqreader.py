@@ -16,21 +16,21 @@ from alfe.reader import CustomerBlockReader
 from alfe.reader.history_financial_reader import HistoryFinancialReader
 import pandas as pd
 
-# 让pandas 显示全部数据
+# Let pandas display all data
 pd.set_option('display.max_columns', None)
 pd.set_option('display.max_rows', None)
 
 
 Help_Text = '''
-数据文件格式，
- - daily 代表日K线
- - ex_daily 代表扩展行情的日线
- - min 代表5分钟或者1分钟线
- - lc 代表lc1, lc5格式的分钟线
- - gbbq 股本变迁文件
- - block 读取板块股票列表文件
- - customblock 读取自定义板块列表
- - history_financial 或者 hf 历史财务信息 如 gpcw20170930.dat 或者 gpcw20170930.zip
+Data file format,
+ - daily: Daily K-line
+ - ex_daily: Extended market daily K-line
+ - min: 5min or 1min K-line
+ - lc: lc1, lc5 format minute K-line
+ - gbbq: Share capital change file
+ - block: Read sector stock list file
+ - customblock: Read custom sector list
+ - history_financial or hf: Historical financial info, e.g. gpcw20170930.dat or gpcw20170930.zip
 '''
 
 @click.command()
@@ -39,7 +39,7 @@ Help_Text = '''
 @click.option("-d", "--datatype", default="daily", help=Help_Text)
 def main(input, output, datatype):
     """
-    通达信数据文件读取
+    TDX data file reader
     """
 
     if datatype == 'daily':
@@ -62,7 +62,7 @@ def main(input, output, datatype):
     try:
         df = reader.get_df(input)
         if output:
-            click.echo("写入到文件 : " + output)
+            click.echo("Writing to file : " + output)
             df.to_csv(output)
         else:
             print(df)

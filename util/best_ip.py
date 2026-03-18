@@ -1,20 +1,20 @@
 #coding: utf-8
-# see https://github.com/alpha-evolver/alfe/issues/38 IP寻优的简单办法
+# see https://github.com/alpha-evolver/alfe/issues/38 IP optimization simple method
 # by yutianst
 
 import datetime
 from alfe.hq import AlfeHq_API
 from alfe.exhq import AlfeExHq_API
 
-stock_ip = [{'ip': '106.120.74.86', 'port': 7711, 'name': 'Shanghai行情主站1'},
- {'ip': '113.105.73.88', 'port': 7709, 'name': 'Shenzhen行情主站'},
- {'ip': '113.105.73.88', 'port': 7711, 'name': 'Shenzhen行情主站'},
- {'ip': '114.80.80.222', 'port': 7711, 'name': 'Shanghai行情主站'},
- {'ip': '117.184.140.156', 'port': 7711, 'name': 'Mobile行情主站'},
- {'ip': '119.147.171.206', 'port': 443, 'name': 'Guangzhou行情主站'},
- {'ip': '119.147.171.206', 'port': 80, 'name': 'Guangzhou行情主站'},
- {'ip': '218.108.50.178', 'port': 7711, 'name': 'Hangzhou行情主站'},
- {'ip': '221.194.181.176', 'port': 7711, 'name': 'Shanghai行情主站2'},
+stock_ip = [{'ip': '106.120.74.86', 'port': 7711, 'name': 'Shanghai Quotes Main 1'},
+ {'ip': '113.105.73.88', 'port': 7709, 'name': 'Shenzhen Quotes Main'},
+ {'ip': '113.105.73.88', 'port': 7711, 'name': 'Shenzhen Quotes Main'},
+ {'ip': '114.80.80.222', 'port': 7711, 'name': 'Shanghai Quotes Main'},
+ {'ip': '117.184.140.156', 'port': 7711, 'name': 'Mobile Quotes Main'},
+ {'ip': '119.147.171.206', 'port': 443, 'name': 'Guangzhou Quotes Main'},
+ {'ip': '119.147.171.206', 'port': 80, 'name': 'Guangzhou Quotes Main'},
+ {'ip': '218.108.50.178', 'port': 7711, 'name': 'Hangzhou Quotes Main'},
+ {'ip': '221.194.181.176', 'port': 7711, 'name': 'Shanghai Quotes Main 2'},
  {'ip': '106.120.74.86', 'port': 7709},
  {'ip': '112.95.140.74', 'port': 7709},
  {'ip': '112.95.140.92', 'port': 7709},
@@ -67,19 +67,19 @@ stock_ip = [{'ip': '106.120.74.86', 'port': 7711, 'name': 'Shanghai行情主站1
  {'ip': '113.105.142.162', 'port': 7721},
  {'ip': '23.129.245.199', 'port': 7721}]
 
-future_ip = [{'ip': '106.14.95.149', 'port': 7727, 'name': '扩展市场Shanghai双线'},
- {'ip': '112.74.214.43', 'port': 7727, 'name': '扩展市场Shenzhen双线1'},
- {'ip': '119.147.86.171', 'port': 7727, 'name': '扩展市场Shenzhen主站'},
- {'ip': '119.97.185.5', 'port': 7727, 'name': '扩展市场Wuhan主站1'},
- {'ip': '120.24.0.77', 'port': 7727, 'name': '扩展市场Shenzhen双线2'},
+future_ip = [{'ip': '106.14.95.149', 'port': 7727, 'name': 'Extended Market Shanghai Dual-line'},
+ {'ip': '112.74.214.43', 'port': 7727, 'name': 'Extended Market Shenzhen Dual-line 1'},
+ {'ip': '119.147.86.171', 'port': 7727, 'name': 'Extended Market Shenzhen Main'},
+ {'ip': '119.97.185.5', 'port': 7727, 'name': 'Extended Market Wuhan Main 1'},
+ {'ip': '120.24.0.77', 'port': 7727, 'name': 'Extended Market Shenzhen Dual-line 2'},
  {'ip': '124.74.236.94', 'port': 7721},
- {'ip': '202.103.36.71', 'port': 443, 'name': '扩展市场Wuhan主站2'},
- {'ip': '47.92.127.181', 'port': 7727, 'name': '扩展市场Shanghai主站'},
- {'ip': '59.175.238.38', 'port': 7727, 'name': '扩展市场Wuhan主站3'},
- {'ip': '61.152.107.141', 'port': 7727, 'name': '扩展市场Shanghai主站1'},
- {'ip': '61.152.107.171', 'port': 7727, 'name': '扩展市场Shanghai主站2'},
- {'ip': '119.147.86.171', 'port': 7721, 'name': '扩展市场Shenzhen主站'},
- {'ip': '47.107.75.159', 'port': 7727, 'name': '扩展市场Shenzhen双线3'}]
+ {'ip': '202.103.36.71', 'port': 443, 'name': 'Extended Market Wuhan Main 2'},
+ {'ip': '47.92.127.181', 'port': 7727, 'name': 'Extended Market Shanghai Main'},
+ {'ip': '59.175.238.38', 'port': 7727, 'name': 'Extended Market Wuhan Main 3'},
+ {'ip': '61.152.107.141', 'port': 7727, 'name': 'Extended Market Shanghai Main 1'},
+ {'ip': '61.152.107.171', 'port': 7727, 'name': 'Extended Market Shanghai Main 2'},
+ {'ip': '119.147.86.171', 'port': 7721, 'name': 'Extended Market Shenzhen Main'},
+ {'ip': '47.107.75.159', 'port': 7727, 'name': 'Extended Market Shenzhen Dual-line 3'}]
 
 def ping(ip, port=7709, type_='stock'):
     api = AlfeHq_API()
@@ -109,15 +109,15 @@ def ping(ip, port=7709, type_='stock'):
                         print('GOOD RESPONSE {}'.format(ip))
                         return datetime.datetime.now() - __time1
                     else:
-                        print('️Bad FUTUREIP REPSONSE {}'.format(ip))
+                        print('Bad FUTURE IP REPSONSE {}'.format(ip))
                         return datetime.timedelta(9, 9, 0)
                 else:
-                    print('️Bad FUTUREIP REPSONSE {}'.format(ip))
+                    print('Bad FUTURE IP REPSONSE {}'.format(ip))
                     return datetime.timedelta(9, 9, 0)
     except Exception as e:
         if isinstance(e, TypeError):
             print(e)
-            print('Tushare内置的alfe版本和最新的alfe 版本不同, 请重新安装alfe以解决此问题')
+            print('Tushare built-in alfe version and latest alfe version are different, please reinstall alfe to fix this issue')
             print('pip uninstall alfe')
             print('pip install alfe')
 
@@ -128,7 +128,7 @@ def ping(ip, port=7709, type_='stock'):
 
 
 def select_best_ip(_type='stock'):
-    """目前这里给的是单线程的选优, 如果需要多进程的选优/ 最优ip缓存 可以参考
+    """Currently this is single-threaded optimization, if you need multi-process optimization / best ip cache, you can refer to
     https://github.com/QUANTAXIS/QUANTAXIS/blob/master/QUANTAXIS/QAFetch/QAAlfe.py#L106
 
 
@@ -151,10 +151,10 @@ def select_best_ip(_type='stock'):
     data = [ping(x['ip'], x['port'], _type) for x in ip_list]
     results = []
     for i in range(len(data)):
-        # 删除ping不通的数据
+        # Remove data that ping failed
         if data[i] < datetime.timedelta(0, 9, 0):
             results.append((data[i], ip_list[i]))
-    # 按照ping值从小大大排序
+    # Sort by ping value from small to large
     results = [x[1] for x in sorted(results, key=lambda x: x[0])]
     
     return results[0]

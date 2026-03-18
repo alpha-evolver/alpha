@@ -6,9 +6,9 @@ import datetime
 
 def get_real_trade_date(date, towards):
     """
-    获取真实的交易日期,其中,Third param towards indicates forward/push backward
-    towards=1 date iterates forward
-    towards=-1 date iterates backward
+    Get the actual trading date. The third parameter 'towards' indicates forward/backward iteration.
+    towards=1: date iterates forward
+    towards=-1: date iterates backward
     @yutiansut
     """
     if towards == 1:

@@ -6,11 +6,11 @@ from collections import OrderedDict
 import struct
 
 """
-tradex 结果
+tradex Result
 
-﻿        7、查询分时...
+﻿        7. QueryIntraday...
 
-时间    价格    均价    成交量  成交额
+Time    Price    Avg Price    Volume  Amount
 09:30   3706.199951     3706.199951     27      13336
 09:31   3705.199951     3705.910400     11      13335
 09:32   3704.600098     3705.473633     19      13328

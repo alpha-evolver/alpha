@@ -12,7 +12,7 @@ class GetHistoryMinuteTimeData(BaseParser):
         """
         :param market: 0/1
         :param code: '000001'
-        :param date: 20161201  类似这样的整型
+        :param date: 20161201, similar to this integer format
         :return:
         """
 
@@ -30,7 +30,7 @@ class GetHistoryMinuteTimeData(BaseParser):
         pos = 0
         (num, ) = struct.unpack("<H", body_buf[:2])
         last_price = 0
-        # 跳过了4个字节，实在不知道是什么意思
+        # Skip 4 bytes, really don't know what it means
         pos += 6
         prices = []
         for i in range(num):

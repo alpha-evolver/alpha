@@ -23,7 +23,7 @@ class GetSecurityList(BaseParser):
         for i in range(num):
 
             # b'880023d\x00\xd6\xd0\xd0\xa1\xc6\xbd\xbe\xf9.9\x04\x00\x02\x9a\x99\x8cA\x00\x00\x00\x00'
-            # 880023 100 中小平均 276782 2 17.575001 0 80846648
+            # 880023 100 Average 276782 2 17.575001 0 80846648
 
             one_bytes = body_buf[pos: pos + 29]
 

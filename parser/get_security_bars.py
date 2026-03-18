@@ -8,7 +8,7 @@ import struct
 import six
 
 """
-Notice：，如果一个股票当天停牌，那天的K线还是能取到，成交量为0
+Note: If a stock is suspended on a trading day, the K-line for that day can still be retrieved, with volume = 0
 
 
 param: category=9, market=0, stockcode=000001, start=0, count=10
@@ -79,7 +79,7 @@ class GetSecurityBarsCmd(BaseParser):
 
             pre_diff_base = price_open_diff + price_close_diff
 
-            #### 为了避免python处理浮点数的时候，浮点数运算不精确问题，这里引入了多余的代码
+            #### To avoid Python floating point precision issues, extra code is introduced here
 
             kline = OrderedDict([
                 ("open", open),

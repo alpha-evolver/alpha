@@ -8,7 +8,7 @@ import time
 from collections import OrderedDict
 
 """
-ips 应该还是一个 (ip ,port) 对的列表，如
+ips should be a list of (ip, port) pairs, like
 
 [
     (ip1, port1),
@@ -38,7 +38,7 @@ class BaseIPPool(object):
 
 class RandomIPPool(BaseIPPool):
     """
-    获取一个随机的优先级列表
+    Get a random priority list
     """
 
     def __init__(self, hq_class, ips):
@@ -63,8 +63,8 @@ class RandomIPPool(BaseIPPool):
 
 class AvailableIPPool(BaseIPPool):
     """
-    测试可连接性，并根据连接速度排序
-    我们启动一个新的线程，周期性的进行更新
+    Test connectivity, and sort by connection speed
+    We start a new thread to periodically update
     """
 
     def __init__(self, hq_class, ips):
@@ -105,7 +105,7 @@ class AvailableIPPool(BaseIPPool):
 
     def get_all_available_ips(self):
         """
-        循环测试所有连接的连接速度和有效性
+        Loop test all connection speed and validity
         :return:
         """
         _available_ips = OrderedDict()
@@ -159,6 +159,3 @@ if __name__ == "__main__":
     log.debug(str(pool.get_ips()))
     log.debug("ready to teardown")
     pool.teardown()
-
-
-

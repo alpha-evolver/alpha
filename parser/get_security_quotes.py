@@ -11,7 +11,7 @@ class GetSecurityQuotesCmd(BaseParser):
 
     def setParams(self, all_stock):
         """
-         :param all_stock: 一个包含 (market, code) 元组的列表， 如 [ (0, '000001'), (1, '600001') ]
+         :param all_stock: A list containing (market, code) tuples, e.g. [ (0, '000001'), (1, '600001') ]
          :return:
         """
         stock_len = len(all_stock)
@@ -60,19 +60,19 @@ class GetSecurityQuotesCmd(BaseParser):
             open_diff, pos = get_price(body_buf, pos)
             high_diff, pos = get_price(body_buf, pos)
             low_diff, pos = get_price(body_buf, pos)
-            # 不确定这里应该是用 get_price 跳过还是直接跳过4个bytes
+            # Not sure if we should use get_price to skip or just skip 4 bytes
             # if price == 0 and last_close_diff == 0 and open_diff == 0 and high_diff == 0 and low_diff == 0:
-            #     # 这个股票当前应该无法获取信息, 这个时候，这个值一般是0 或者 100
+            #     # This stock currently cannot get info, this value is usually 0 or 100
             #     #reversed_bytes0 = body_buf[pos: pos + 1]
             #     #pos += 1
-            #     # 感觉这里应该都可以用 get_price ，但是由于一次性改动影响比较大，所以暂时只针对没有行情的股票做改动
+            #     # Feel like get_price should work here, but since one change affects a lot, temporarily only modify for stocks without quotes
             #     reversed_bytes0, pos = get_price(body_buf, pos)
             # else:
             #     reversed_bytes0 = body_buf[pos: pos + 4]
             #     pos += 4
             reversed_bytes0, pos = get_price(body_buf, pos)
             # reversed_bytes0, pos = get_price(body_buf, pos)
-            # 应该是 -price
+            # Should be -price
             reversed_bytes1, pos = get_price(body_buf, pos)
             # print('reversed_bytes1:' + str(reversed_bytes1)  + ",price" + str(price))
             # assert (reversed_bytes1 == -price)
@@ -170,7 +170,7 @@ class GetSecurityQuotesCmd(BaseParser):
                 ("reversed_bytes6", reversed_bytes6),
                 ("reversed_bytes7", reversed_bytes7),
                 ("reversed_bytes8", reversed_bytes8),
-                ("reversed_bytes9", reversed_bytes9/100.0),  # 涨速
+                ("reversed_bytes9", reversed_bytes9/100.0),  # Rise speed
                 ("active2", active2)
             ])
             stocks.append(one_stock)

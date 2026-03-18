@@ -82,8 +82,8 @@ def update_last_ack_time(func):
                 to_raise.original_exception = current_exception if current_exception else None
                 raise to_raise
         """
-        如果raise_exception=True 抛出异常
-        如果raise_exception=False 返回None
+        If raise_exception=True, raise exception
+        If raise_exception=False, return None
         """
         return ret
     return wrapper
@@ -97,33 +97,34 @@ class RetryStrategy(object):
 
 class DefaultRetryStrategy(RetryStrategy):
     """
-    默认的重试策略，您可以通过写自己的重试策略替代本策略, 改策略主要实现gen方法，该方法是一个生成器，
-    返回下次重试的间隔时间, 单位为秒，我们会使用 time.sleep在这里同步等待之后进行重新connect,然后再重新发起
-    源请求，直到gen结束。
+    Default retry strategy. You can write your own retry strategy to replace this one.
+    The strategy mainly implements the gen method, which is a generator that returns
+    the interval time for the next retry in seconds. We will use time.sleep to wait
+    synchronously here before reconnecting, then retry the original request until gen ends.
     """
     @classmethod
     def gen(cls):
-        # 默认重试4次 ... 时间间隔如下
+        # Default retry 4 times... time intervals as below
         for time_interval in [0.1, 0.5, 1, 2]:
             yield time_interval
 
 
 class TrafficStatSocket(socket.socket):
     """
-    实现支持流量统计的socket类
+    Socket class with traffic statistics support
     """
 
     def __init__(self, sock, mode):
         super(TrafficStatSocket, self).__init__(sock, mode)
-        # 流量统计相关
-        self.send_pkg_num = 0  # 发送次数
-        self.recv_pkg_num = 0  # 接收次数
-        self.send_pkg_bytes = 0  # 发送字节
-        self.recv_pkg_bytes = 0  # 接收字节数
-        self.first_pkg_send_time = None  # 第一个数据包发送时间
+        # Traffic statistics related
+        self.send_pkg_num = 0  # Number of sends
+        self.recv_pkg_num = 0  # Number of receives
+        self.send_pkg_bytes = 0  # Bytes sent
+        self.recv_pkg_bytes = 0  # Bytes received
+        self.first_pkg_send_time = None  # First packet send time
 
-        self.last_api_send_bytes = 0  # 最近的一次api调用的发送字节数
-        self.last_api_recv_bytes = 0  # 最近一次api调用的接收字节数
+        self.last_api_send_bytes = 0  # Send bytes of last API call
+        self.last_api_recv_bytes = 0  # Receive bytes of last API call
 
 
 class BaseSocketClient(object):
@@ -139,28 +140,28 @@ class BaseSocketClient(object):
         self.heartbeat = heartbeat
         self.heartbeat_thread = None
         self.stop_event = None
-        self.heartbeat_interval = DEFAULT_HEARTBEAT_INTERVAL  # 默认10秒一个心跳包
+        self.heartbeat_interval = DEFAULT_HEARTBEAT_INTERVAL  # Default 10 seconds per heartbeat
         self.last_ack_time = time.time()
         self.last_transaction_failed = False
         self.ip = None
         self.port = None
 
-        # 是否重试
+        # Whether to retry
         self.auto_retry = auto_retry
-        # 可以覆盖这个属性，使用新的重试策略
+        # Can override this property to use new retry strategy
         self.retry_strategy = DefaultRetryStrategy()
-        # 是否在函数调用出错的时候抛出异常
+        # Whether to raise exception on function call error
         self.raise_exception = raise_exception
 
     def connect(self, ip='101.227.73.20', port=7709, time_out=CONNECT_TIMEOUT, bindport=None, bindip='0.0.0.0'):
         """
 
-        :param ip:  服务器ip 地址
-        :param port:  服务器端口
-        :param time_out: 连接超时时间
-        :param bindport: 绑定的本地端口
-        :param bindip: 绑定的本地ip
-        :return: 是否连接成功 True/False
+        :param ip:  Server IP address
+        :param port:  Server port
+        :param time_out: Connection timeout
+        :param bindport: Local port to bind
+        :param bindip: Local IP to bind
+        :return: Whether connection is successful True/False
         """
 
         self.client = TrafficStatSocket(socket.AF_INET, socket.SOCK_STREAM)
@@ -215,14 +216,14 @@ class BaseSocketClient(object):
 
     def close(self):
         """
-        disconnect的别名，为了支持 with closing(obj): 语法
+        Alias for disconnect, to support with closing(obj): syntax
         :return:
         """
         self.disconnect()
 
     def get_traffic_stats(self):
         """
-        获取流量统计的信息
+        Get traffic statistics info
         :return:
         """
         if self.client.first_pkg_send_time is not None:

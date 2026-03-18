@@ -7,7 +7,7 @@ import os
 from io import BytesIO
 
 """
-参考这个 http://blog.csdn.net/Metal1/article/details/44352639
+Reference: http://blog.csdn.net/Metal1/article/details/44352639
 
 """
 
@@ -73,7 +73,7 @@ class BlockReader(BaseReader):
 
 
 """
-读取通达信备份的自定义板块文件夹，返回格式与通达信板块一致，在广发证券客户端上测试通过，其它未测试
+Read TDX backup custom block folder, return format same as TDX block, tested on GF Securities client, others not tested
 """
 
 

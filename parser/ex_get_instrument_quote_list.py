@@ -4,15 +4,15 @@ from alfe.parser.base import BaseParser
 from collections import OrderedDict
 import struct
 """
-这个是获取大连商品的数据
+This is to get Dalian Commodity Data
 
 OrderedDict([('market', 29),
               ('category', 3),
-              ('name', '大连商品'),
+              ('name', 'Dalian Commodity'),
               ('short_name', 'QD')]),
 
 
-1d 是请求的数据数量，
+1d: Request Data Count,
 
 01 c1 06 0b 00 02 0b 00  0b 00 00 24 1d 00 00 00 00 1d 00 01 00
 """
@@ -38,11 +38,11 @@ class GetInstrumentQuoteList(BaseParser):
 
         datalist = []
         if self.category not in [2,3] :
-            return NotImplementedError("暂时不支持期货,港股之外的品类")
+            return NotImplementedError("Temporarily not supporting futures, classes other than HK stocks")
 
         for i in range(num):
             """
-            每个块一共300bytes
+            Each block is 300 bytes
             """
             market, code = struct.unpack("<B9s", body_buf[pos: pos + 10])
             code = code.strip(b"\0").decode("gbk") # to unicode
@@ -56,10 +56,10 @@ class GetInstrumentQuoteList(BaseParser):
             elif self.category == 2:
                 """
                    market  category   name short_name
-                0      31         2   香港主板         KH
-                1      48         2  香港创业板         KG
-                2      49         2   香港基金         KT
-                3      71         2    沪港通         GH
+                0      31         2   Hong Kong Main Board         KH
+                1      48         2  Hong Kong GEM         KG
+                2      49         2   Hong Kong Funds         KT
+                3      71         2    Shanghai-Hong Kong Stock Connect         GH
                 """
                 pos = self.extract_hongkong_stocks(market, code, body_buf, datalist, pos)
 
@@ -87,7 +87,7 @@ class GetInstrumentQuoteList(BaseParser):
          _,  # ?
          _,  # ?
          Nei,  # 0
-         Wai,  # 0 Nei/Wai = 内外比？
+         Wai,  # 0 Nei/Wai = Inner/Outer ratio?
          MaiRuJia1,
          MaiRuJia2,
          MaiRuJia3,
@@ -123,7 +123,7 @@ class GetInstrumentQuoteList(BaseParser):
             ("XianLiang", XianLiang),
             ("ZongJinE", ZongJinE),
             ("Nei", Nei),
-            ("Wai", Wai),  # 0 Nei/Wai = 内外比？
+            ("Wai", Wai),  # 0 Nei/Wai = Inner/Outer ratio?
             ("MaiRuJia1", MaiRuJia1),
             ("MaiRuJia2", MaiRuJia2),
             ("MaiRuJia3", MaiRuJia3),

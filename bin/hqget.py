@@ -19,7 +19,7 @@ import pickle
 from functools import reduce
 
 
-# 让pandas 显示全部数据
+# Let pandas display all data
 pd.set_option('display.max_columns', None)
 pd.set_option('display.max_rows', None)
 
@@ -76,82 +76,82 @@ def get_finance_info(params):
 
 FUNCTION_LIST = OrderedDict(
     [
-        (1, ['Get stock quotes', 'Param: market code， stock code， 如： 0,000001 或 1,600300', get_security_quotes, '0,000001']),
-        (2, ['获取k线', '''category-> K线种类
-0 5分钟K线 1 15分钟K线 2 30分钟K线 3 1小时K线 4 日K线
-5 周K线
-6 月K线
-7 1分钟
-8 1分钟K线 9 日K线
-10 季K线
-11 年K线
-market -> 市场代码 0:深圳，1:上海
-stockcode -> 证券代码;
-start -> 指定的范围开始位置;
-count -> 用户要请求的 K 线数目，最大值为 800
+        (1, ['Get stock quotes', 'Param: market code, stock code, e.g.: 0,000001 or 1,600300', get_security_quotes, '0,000001']),
+        (2, ['Get K-lines', '''category-> K-line type
+0 5min K-line 1 15min K-line 2 30min K-line 3 1hour K-line 4 Daily K-line
+5 Weekly K-line
+6 Monthly K-line
+7 1min
+8 1min K-line 9 Daily K-line
+10 Quarterly K-line
+11 Yearly K-line
+market -> Market code 0:Shenzhen, 1:Shanghai
+stockcode -> Security code;
+start -> Specified range start position;
+count -> Number of K-lines to request, max 800
 
-如： 9,0,000001,0,100''', get_security_bars, '9,0,000001,0,100']),
-        (3, ['获取市场Stock count', 'Param: market code， stock code， 如： 0 或 1', get_security_count, '0']),
-        (4, ['获取Stock list', 'Param: market code, 起始位置， 数量  如： 0,0 或 1,100', get_security_list, '0,0']),
-        (5, ['获取指数k线', """参数:
-category-> K线种类
-0 5分钟K线 1 15分钟K线 2 30分钟K线 3 1小时K线 4 日K线
-5 周K线
-6 月K线
-7 1分钟
-8 1分钟K线 9 日K线
-10 季K线
-11 年K线
-market -> 市场代码 0:深圳，1:上海
-stockCode -> 证券代码;
-start -> 指定的范围开始位置; count -> 用户要请求的 K 线数目
-如：9,1,000001,0,100""", get_index_bars, '9,1,000001,0,100']),
-        (6, ['SearchMinute quotes', "Param: market code， stock code， 如： 0,000001 或 1,600300", get_minute_time_data, '0,000001']),
-        (7, ['Search历史Minute quotes', 'Param: market code， stock code，时间 如： 0,000001,20161209 或 1,600300,20161209', get_history_minute_time_data, '0,000001,20161209']),
-        (8, ['SearchTransaction', 'Param: market code， stock code，起始位置， 数量 如： 0,000001,0,10', get_transaction_data, '0,000001,0,10']),
-        (9, ['Search历史Transaction', 'Param: market code， stock code，起始位置，日期 数量 如： 0,000001,0,10,20170209', get_history_transaction_data, '0,000001,0,10,20170209']),
-        (10, ['SearchCompany info category','Param: market code， stock code， 如： 0,000001 或 1,600300', get_company_info_category, '0,000001']),
-        (11, ['ReadCompany info detail', 'Param: market code， stock code, 文件名, 起始位置， 数量, 如：0,000001,000001.txt,2054363,9221', get_company_info_content, '0,000001,000001.txt,0,10']),
-        (12, ['ReadXD info', 'Param: market code， stock code， 如： 0,000001 或 1,600300', get_xdxr_info, '0,000001']),
-        (13, ['ReadFinancial info', 'Param: market code， stock code， 如： 0,000001 或 1,600300', get_finance_info, '0,000001']),
+e.g.: 9,0,000001,0,100''', get_security_bars, '9,0,000001,0,100']),
+        (3, ['Get market stock count', 'Param: market code, e.g.: 0 or 1', get_security_count, '0']),
+        (4, ['Get stock list', 'Param: market code, start position, count, e.g.: 0,0 or 1,100', get_security_list, '0,0']),
+        (5, ['Get index K-lines', """Params:
+category-> K-line type
+0 5min K-line 1 15min K-line 2 30min K-line 3 1hour K-line 4 Daily K-line
+5 Weekly K-line
+6 Monthly K-line
+7 1min
+8 1min K-line 9 Daily K-line
+10 Quarterly K-line
+11 Yearly K-line
+market -> Market code 0:Shenzhen, 1:Shanghai
+stockCode -> Security code;
+start -> Specified range start position; count -> Number of K-lines to request
+e.g.: 9,1,000001,0,100""", get_index_bars, '9,1,000001,0,100']),
+        (6, ['Query intraday quotes', "Param: market code, stock code, e.g.: 0,000001 or 1,600300", get_minute_time_data, '0,000001']),
+        (7, ['Query historical intraday quotes', 'Param: market code, stock code, date, e.g.: 0,000001,20161209 or 1,600300,20161209', get_history_minute_time_data, '0,000001,20161209']),
+        (8, ['Query transactions', 'Param: market code, stock code, start position, count, e.g.: 0,000001,0,10', get_transaction_data, '0,000001,0,10']),
+        (9, ['Query historical transactions', 'Param: market code, stock code, start position, date, count, e.g.: 0,000001,0,10,20170209', get_history_transaction_data, '0,000001,0,10,20170209']),
+        (10, ['Query company info category','Param: market code, stock code, e.g.: 0,000001 or 1,600300', get_company_info_category, '0,000001']),
+        (11, ['Read company info detail', 'Param: market code, stock code, filename, start position, count, e.g.: 0,000001,000001.txt,2054363,9221', get_company_info_content, '0,000001,000001.txt,0,10']),
+        (12, ['Read ex-rights info', 'Param: market code, stock code, e.g.: 0,000001 or 1,600300', get_xdxr_info, '0,000001']),
+        (13, ['Read financial info', 'Param: market code, stock code, e.g.: 0,000001 or 1,600300', get_finance_info, '0,000001']),
     ]
 )
 
-#  1 :               招商证券深圳行情    119.147.212.81:7709
-#  2 :             华泰证券(南京电信)    221.231.141.60:7709
-#  3 :             华泰证券(上海电信)    101.227.73.20:7709
-#  4 :           华泰证券(上海电信二)    101.227.77.254:7709
+#  1 :               CITIC Shenzhen Quotes    119.147.212.81:7709
+#  2 :             Huatai Securities (Nanjing Telecom)    221.231.141.60:7709
+#  3 :             Huatai Securities (Shanghai Telecom)    101.227.73.20:7709
+#  4 :           Huatai Securities (Shanghai Telecom 2)    101.227.77.254:7709
 #  5 :        zz
 
 SERVERS = OrderedDict([
-(1, ['招商证券深圳行情', '119.147.212.81:7709']),
-(2, ['华泰证券(南京电信)', '221.231.141.60:7709']),
-(3, ['华泰证券(上海电信)', '101.227.73.20:7709']),
-(4, ['华泰证券(上海电信二)', '101.227.77.254:7709']),
-(5, ['华泰证券(深圳电信)', '14.215.128.18:7709']),
-(6, ['华泰证券(武汉电信)', '59.173.18.140:7709']),
-(7, ['华泰证券(天津联通)', '60.28.23.80:7709']),
-(8, ['华泰证券(沈阳联通)', '218.60.29.136:7709']),
-(9, ['华泰证券(南京联通)', '122.192.35.44:7709']),
-(10, ['华泰证券(南京联通)', '122.192.35.44:7709']),
+(1, ['CITIC Shenzhen Quotes', '119.147.212.81:7709']),
+(2, ['Huatai Securities (Nanjing Telecom)', '221.231.141.60:7709']),
+(3, ['Huatai Securities (Shanghai Telecom)', '101.227.73.20:7709']),
+(4, ['Huatai Securities (Shanghai Telecom 2)', '101.227.77.254:7709']),
+(5, ['Huatai Securities (Shenzhen Telecom)', '14.215.128.18:7709']),
+(6, ['Huatai Securities (Wuhan Telecom)', '59.173.18.140:7709']),
+(7, ['Huatai Securities (Tianjin Unicom)', '60.28.23.80:7709']),
+(8, ['Huatai Securities (Shenyang Unicom)', '218.60.29.136:7709']),
+(9, ['Huatai Securities (Nanjing Unicom)', '122.192.35.44:7709']),
+(10, ['Huatai Securities (Nanjing Unicom)', '122.192.35.44:7709']),
 ])
 
 def connect():
     while True:
-        click.secho("请选择服务器")
+        click.secho("Please select server")
         click.secho("-" * 20)
         for k,v in SERVERS.items():
             click.secho("[%d] :%s (%s)" % (k, v[0], v[1]))
         click.secho("-" * 20)
-        num = click.prompt("请输入序号 ", type=int, default=1)
+        num = click.prompt("Please enter number ", type=int, default=1)
         if num not in SERVERS:
-            click.echo("序号错误")
+            click.echo("Invalid number")
             continue
         ip,port = SERVERS[num][1].split(":")
 
         c = api.connect(ip, int(port))
         if not c:
-            raise Exception("无法连接")
+            raise Exception("Unable to connect")
         else:
             break
 
@@ -159,7 +159,7 @@ def connect_to(ipandport):
     ip, port = ipandport.split(":")
     c = api.connect(ip, int(port))
     if not c:
-        raise Exception("无法连接")
+        raise Exception("Unable to connect")
 
 def disconnect():
     api.disconnect()
@@ -168,16 +168,16 @@ if sys.version_info[0] == 2:
     reload(sys)
     sys.setdefaultencoding('utf8')
 
-FUNCTION_LIST_STR = "0 : 使用交互式接口\n"
+FUNCTION_LIST_STR = "0 : Use interactive interface\n"
 for x, y in FUNCTION_LIST.items():
     FUNCTION_LIST_STR = FUNCTION_LIST_STR + str(x) + " : " + y[0] + "\n"
 
 @click.command()
-@click.option('-f', '--function', default=0, type=click.INT, help="选择使用的功能" + "\n" + FUNCTION_LIST_STR)
-@click.option('--df/--no-df', default=True, help="是否使用Pandas Dataframe显示")
-@click.option('-o', '--output', default="-", help="保存到文件，默认不保存")
-@click.option('-s', '--server', default="-", type=click.STRING, help="连接的服务器，设定之后直接连接该服务器，无需选择" )
-@click.option('--all/--no-all', default=False, help="显示全部服务器列表")
+@click.option('-f', '--function', default=0, type=click.INT, help="Select function to use" + "\n" + FUNCTION_LIST_STR)
+@click.option('--df/--no-df', default=True, help="Whether to use Pandas DataFrame display")
+@click.option('-o', '--output', default="-", help="Save to file, default not saved")
+@click.option('-s', '--server', default="-", type=click.STRING, help="Server to connect, set to connect directly without selection" )
+@click.option('--all/--no-all', default=False, help="Show all server list")
 def main(function, df, output, server, all):
     """
     Stock quote program. Author: Alpha
@@ -187,52 +187,52 @@ def main(function, df, output, server, all):
         global SERVERS
         SERVERS = OrderedDict([(idx+1, [host[0], "%s:%s" % (host[1], host[2])]) for idx, host in enumerate(hq_hosts)])
 
-    click.secho("连接中.... ", fg="green")
+    click.secho("Connecting.... ", fg="green")
     if server == '-':
         connect()
     else:
         connect_to(server)
 
-    click.secho("连接成功！", fg="green")
+    click.secho("Connected!", fg="green")
     if function == 0:
 
         while True:
             click.secho("-" * 20)
-            click.secho("功能列表：")
+            click.secho("Function list:")
             for (k,v) in FUNCTION_LIST.items():
                 click.secho(str(k) + " : " + v[0], bold=True)
                 last = k + 1
-            click.secho(str(last) + " : 退出断开连接", bold=True)
+            click.secho(str(last) + " : Exit disconnect", bold=True)
             click.secho("-" * 20)
-            value = click.prompt('请输入要使用的功能', type=int)
+            value = click.prompt('Please enter function to use', type=int)
             if value == last:
                 break
             run_function(df, value)
             click.secho("-" * 20)
-            click.echo("按任意键继续")
+            click.echo("Press any key to continue")
             click.getchar()
     elif function in FUNCTION_LIST.keys():
         value = function
         result = run_function(df, value)
 
         if (result is not None) and (output != "-"):
-            click.secho("写入结果到 " + output)
+            click.secho("Writing result to " + output)
             if isinstance(result, pd.DataFrame):
                 result.to_csv(output)
             else:
                 with open(output, "wb") as f:
                     pickle.dump(result, f)
 
-    click.secho("断开连接中.... ", fg="green")
+    click.secho("Disconnecting.... ", fg="green")
     disconnect()
-    click.secho("断开连接成功！", fg="green")
+    click.secho("Disconnected!", fg="green")
 
 
 def run_function(df, value):
-    click.secho("你选择的是功能 " + str(value) + " : " + FUNCTION_LIST[value][0])
+    click.secho("You selected function " + str(value) + " : " + FUNCTION_LIST[value][0])
     click.secho("-" * 20)
     click.secho(FUNCTION_LIST[value][1])
-    params_str = click.prompt("请输入参数 ", type=str, default=FUNCTION_LIST[value][3])
+    params_str = click.prompt("Please enter params ", type=str, default=FUNCTION_LIST[value][3])
     params = [p.strip() for p in params_str.split(",")]
     click.secho("-" * 20)
     try:
@@ -249,7 +249,7 @@ def run_function(df, value):
         print('-' * 60)
         traceback.print_exc(file=sys.stdout)
         print('-' * 60)
-        click.secho("发生错误，错误信息为： " + str(e), fg='red')
+        click.secho("Error occurred, error message: " + str(e), fg='red')
 
 
 if __name__ == '__main__':

@@ -12,9 +12,9 @@ Features:
 
 Usage:
     cd /d/WorkSpace/Python/alfe/scripts
-    # 抓取 000001 在 2023-01 的 1分钟和5分钟数据
+    # Fetch 000001 for 2023-01, 1-minute and 5-minute data
     python save_history_period_all.py -c 000001 -p -1 -5 -s 2023-01-01 -e 2023-01-31 --outdir ../data
-    # 抓取所有周期
+    # Fetch all periods
     python save_history_period_all.py -c 000001 -p all --outdir ../data
     
     python save_history_period_all.py -c 300420 -p all -s 2000-01-01 -e 2025-12-31 --outdir ../data
@@ -23,7 +23,7 @@ import argparse
 import os
 import sys
 
-# 设置 alfe 模块路径
+# Settings alfe ModulePath
 sys.path.insert(0, "/workspace/alfe")
 import sys
 import time
@@ -174,8 +174,8 @@ def save_code_for_category(
         print(f"Total bars before filter: {len(full)}")
         print(
             f"Bars after filter: {len(full[full['__dt'] >= start_dt])}"
-        )  # 临时，只 start
-        print(full["year"].min(), full["year"].max())  # 检查年份范围
+        )  # Temporary, only start
+        print(full["year"].min(), full["year"].max())  # Check year range
 
         # drop helper
         full = full.drop(columns=["__dt"])

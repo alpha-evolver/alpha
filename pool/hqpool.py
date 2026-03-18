@@ -4,9 +4,9 @@ from functools import partial
 import time
 
 
-## 调用单个接口，重试次数，超过次数则不再重试
+## Call single API, retry count, if exceeded then no more retry
 DEFAULT_API_CALL_MAX_RETRY_TIMES = 20
-## 重试间隔的休眠时间
+## Retry interval sleep time
 DEFAULT_API_RETRY_INTERVAL = 0.2
 
 class AlfeHqApiCallMaxRetryTimesReachedException(Exception):
@@ -14,23 +14,23 @@ class AlfeHqApiCallMaxRetryTimesReachedException(Exception):
 
 class AlfeHqPool_API(object):
     """
-    实现一个连接池的机制
-    包含：
+    Implement a connection pool mechanism
+    Contains:
 
-    1 1个正在进行数据通信的主连接
-    2 1个备选连接，备选连接也连接到服务器，通过心跳包维持连接，当主连接通讯出现问题时，备选连接立刻转化为主连接, 原来的主连接返回ip池，并从ip池中选取新的备选连接
-    3 m个ip构成的ip池，可以通过某个方法获取列表，列表可以进行排序，如果备选连接缺少的时候，我们根据排序的优先级顺序将其追加到备选连接
+    1. One main connection currently communicating data
+    2. One backup connection, backup connection also connects to server, maintains connection via heartbeat, when main connection has communication issues, backup connection immediately becomes main connection, original main connection returns to ip pool, and new backup connection is selected from ip pool
+    3. m ips constitute ip pool, can get list via some method, list can be sorted, if backup connection is missing, we append to backup connection based on sorting priority
     """
 
     def __init__(self, hq_cls, ippool):
         self.hq_cls = hq_cls
         self.ippool = ippool
         """
-        正在通信的客户端连接
+        Client connection currently communicating
         """
         self.api = hq_cls(multithread=True, heartbeat=True)
         """
-        备选连接
+        Backup connection
         """
         self.hot_failover_api = hq_cls(multithread=True, heartbeat=True)
 
@@ -39,7 +39,7 @@ class AlfeHqPool_API(object):
         self.api_retry_interval = DEFAULT_API_RETRY_INTERVAL
 
 
-        # 对hq_cls 里面的get_系列函数进行反射
+        # Reflect on get_* series functions in hq_cls
         log.debug("perform_reflect")
         self.perform_reflect(self.api)
 
@@ -49,17 +49,17 @@ class AlfeHqPool_API(object):
         for method_name in method_names:
             log.debug("testing attr %s" % method_name)
             if method_name[:3] == 'get' or method_name == "do_heartbeat" or method_name == 'to_df':
-                log.debug("set refletion to method: %s", method_name)
+                log.debug("set reflection to method: %s", method_name)
                 _do_hp_api_call = partial(self.do_hq_api_call, method_name)
                 setattr(self, method_name, _do_hp_api_call)
 
     def do_hq_api_call(self, method_name, *args, **kwargs):
         """
-        代理发送请求到实际的客户端
-        :param method_name: 调用的方法名称
-        :param args: 参数
-        :param kwargs: kv参数
-        :return: 调用结果
+        Proxy send request to actual client
+        :param method_name: Method name to call
+        :param args: Parameters
+        :param kwargs: Key-value parameters
+        :return: Call result
         """
         try:
             result = getattr(self.api, method_name)(*args, **kwargs)
@@ -69,7 +69,7 @@ class AlfeHqPool_API(object):
             log.info("api(%s) call failed, Exception is %s" % (method_name, str(e)))
             result = None
 
-        # 如果无法获取信息，则进行重试
+        # If unable to get info, then retry
         if result is None:
             if self.api_call_retry_times >= self.api_call_max_retry_times:
                 log.info("(method_name=%s) max retry times(%d) reached" % (method_name, self.api_call_max_retry_times))
@@ -82,7 +82,7 @@ class AlfeHqPool_API(object):
                 self.api.disconnect()
                 self.api = self.hot_failover_api
             log.info("retry times is " + str(self.api_call_max_retry_times))
-            # 从池里再次获取备用ip
+            # Get backup ip from pool again
             new_ips = self.ippool.get_ips()
 
             choise_ip = None
@@ -97,7 +97,7 @@ class AlfeHqPool_API(object):
                 self.hot_failover_api.connect(*choise_ip)
             else:
                 self.hot_failover_api = None
-            # 阻塞0.2秒，然后递归调用自己
+            # Block 0.2 seconds, then recursively call self
             time.sleep(self.api_retry_interval)
             result = self.do_hq_api_call(method_name, *args, **kwargs)
             self.api_call_retry_times += 1
@@ -126,7 +126,7 @@ class AlfeHqPool_API(object):
 
     def close(self):
         """
-        disconnect的别名，为了支持 with closing(obj): 语法
+        Alias for disconnect, to support with closing(obj): syntax
         :return:
         """
         self.disconnect()
@@ -157,7 +157,7 @@ if __name__ == '__main__':
 
     ips = [(v[1], v[2]) for v in hq_hosts]
 
-    # 获取5个随机ip作为ip池
+    # Get 5 random ips as ip pool
     random.shuffle(ips)
     ips5 = ips[:5]
 
@@ -173,6 +173,3 @@ if __name__ == '__main__':
         ret = api.get_xdxr_info(0, '000001')
         print("send api call done")
         pprint.pprint(ret)
-
-
-

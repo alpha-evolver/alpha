@@ -9,22 +9,28 @@ from alfe.reader.base_reader import BaseReader
 from collections import OrderedDict
 
 """
-网传秘籍...
+Legend from the internet...
 
-二、通达信5分钟线*.lc5文件和*.lc1文件 文件名即股票代码 每32个字节为一个5分钟数据，每字段内低字节在前 00 ~ 01 字节：日期，整型，
-设其值为num，则日期计算方法为： year=floor(num/2048)+2004; month=floor(mod(num,2048)/100); day=mod(mod(num,2048),100);
-02 ~ 03 字节： 从0点开始至目前的分钟数，整型 04 ~ 07 字节：开盘价，float型 08 ~ 11 字节：最高价，float型 12 ~ 15 字节：最低价，
-float型 16 ~ 19 字节：收盘价，float型 20 ~ 23 字节：成交额，float型 24 ~ 27 字节：成交量（股），整型 28 ~ 31 字节：（保留）
+2. TDX 5-minute line *.lc5 file and *.lc1 file, filename is stock code, every 32 bytes as one 5-minute data, each field has low byte first
+00 ~ 01 bytes: Date, integer, set value as num, date calculation method: year=floor(num/2048)+2004; month=floor(mod(num,2048)/100); day=mod(mod(num,2048),100);
+02 ~ 03 bytes: Minutes from 0:00 to now, integer
+04 ~ 07 bytes: Open price, float
+08 ~ 11 bytes: High price, float
+12 ~ 15 bytes: Low price, float
+16 ~ 19 bytes: Close price, float
+20 ~ 23 bytes: Transaction amount, float
+24 ~ 27 bytes: Transaction volume (shares), integer
+28 ~ 31 bytes: (reserved)
 
-根据上面的方法解析后，浮点数的数值明显不正确，所以重新寻找对应的方法
+After parsing with above method, float values are obviously not correct, so need to find another method
 
-OHLC 用整型解析了一下，貌似可以匹配到，除以100即可
+OHLC parse as integer, seems to match, divide by 100
 
-网上又搜了一下，貌似这个是正解
+Searched online again, seems this is the correct answer
 
 http://www.ilovematlab.cn/thread-226577-1-1.html
 
-运算了一下，貌似大盘的指数的成交量数据不太对，其它貌似还可以，注意成交量单位不是手
+Calculate, seems market index transaction volume data is not quite right, others seem fine, note transaction volume unit is not lots
 
 """
 
@@ -32,12 +38,12 @@ http://www.ilovematlab.cn/thread-226577-1-1.html
 
 class AlfeMinBarReader(BaseReader):
     """
-    读取通达信分钟数据
+    Read TDX minute data
     """
 
     def parse_data_by_file(self, fname):
         if not os.path.isfile(fname):
-            raise AlfeFileNotFoundException('no alfe kline data, pleaes check path %s', fname)
+            raise AlfeFileNotFoundException('no alfe kline data, please check path %s', fname)
         with open(fname, 'rb') as f:
             content = f.read()
             raw_li = self.unpack_records("<HHIIIIfII", content)
@@ -66,7 +72,7 @@ class AlfeMinBarReader(BaseReader):
 
     def get_df(self, code_or_file, exchange=None):
         #if exchange == None:
-            # 只传入了一个参数
+            # Only one parameter passed
         data = self.parse_data_by_file(code_or_file)
         #else:
         #    data = [self._df_convert(row) for row in self.get_kline_by_code(code_or_file, exchange)]
@@ -91,4 +97,3 @@ if __name__ == '__main__':
     print(df)
 
     print(df['2017-07-21'].sum())
-

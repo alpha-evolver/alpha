@@ -1,5 +1,5 @@
 #coding: utf-8
 
 """
-主要放置一些需要爬取的数据
+Mainly for data that needs to be crawled
 """

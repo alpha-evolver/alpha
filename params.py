@@ -3,25 +3,24 @@
 
 class ALFEParams:
 
-    #市场
+    # Markets
 
-    MARKET_SZ = 0  # 深圳
-    MARKET_SH = 1  # 上海
+    MARKET_SZ = 0  # Shenzhen
+    MARKET_SH = 1  # Shanghai
 
-    #K线种类
-    # K 线种类
-    # 0 -   5 分钟K 线
-    # 1 -   15 分钟K 线
-    # 2 -   30 分钟K 线
-    # 3 -   1 小时K 线
-    # 4 -   日K 线
-    # 5 -   周K 线
-    # 6 -   月K 线
-    # 7 -   1 分钟
-    # 8 -   1 分钟K 线
-    # 9 -   日K 线
-    # 10 -  季K 线
-    # 11 -  年K 线
+    # K-line types
+    # 0 -   5 min K-line
+    # 1 -   15 min K-line
+    # 2 -   30 min K-line
+    # 3 -   1 hour K-line
+    # 4 -   Daily K-line
+    # 5 -   Weekly K-line
+    # 6 -   Monthly K-line
+    # 7 -   1 min (extended)
+    # 8 -   1 min K-line
+    # 9 -   Daily K-line
+    # 10 -  Quarterly K-line
+    # 11 -  Yearly K-line
 
     KLINE_TYPE_5MIN = 0
     KLINE_TYPE_15MIN = 1
@@ -38,13 +37,13 @@ class ALFEParams:
 
 
     # ref : https://github.com/alpha-evolver/alfe/issues/7
-    # 分笔行情最多2000条
+    # Max 2000 tick quotes
     MAX_TRANSACTION_COUNT = 2000
-    # k先数据最多800条
+    # Max 800 K-line data points
     MAX_KLINE_COUNT = 800
 
 
-    # 板块相关参数
+    # Block related parameters
     BLOCK_SZ = "block_zs.dat"
     BLOCK_FG = "block_fg.dat"
     BLOCK_GN = "block_gn.dat"

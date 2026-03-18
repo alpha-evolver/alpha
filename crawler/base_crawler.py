@@ -21,18 +21,18 @@ class BaseCralwer:
 
     def fetch_and_parse(self, reporthook = None, path_to_download=None, proxies=None, chunksize=1024 * 50, *args, **kwargs):
         """
-        function to get data ,
-        :param reporthook 使用urllib.request 的report_hook 来汇报下载进度 \
-                    参考 https://docs.python.org/3/library/urllib.request.html#module-urllib.request
-        :param path_to_download 数据文件下载的地址，如果没有提供，则下载到临时文件中，并在解析之后删除
-        :param proxies urllib格式的代理服务器设置
-        :return: 解析之后的数据结果
+        function to get data,
+        :param reporthook: use urllib.request's report_hook to report download progress \
+                    see https://docs.python.org/3/library/urllib.request.html#module-urllib.request
+        :param path_to_download: path to download data file, if not provided, download to temp file and delete after parsing
+        :param proxies: urllib format proxy server settings
+        :return: parsed data result
         """
         if (self.mode == "http"):
-            download_file = self.fetch_via_http(reporthook=reporthook, path_to_download=path_to_download, proxies=proxies, chunksize=chunksize, *args, **kwargs) 
+            download_file = self.fetch_via_http(reporthook=reporthook, path_to_download=path_to_download, proxies=proxies, chunksize=chunksize, *args, **kwargs)
         else:
             download_file = self.get_content(reporthook=reporthook, path_to_download=path_to_download, chunksize=chunksize, *args, **kwargs);
-        
+
         result =  self.parse(download_file, *args, **kwargs)
         try:
             download_file.close()
@@ -80,7 +80,7 @@ class BaseCralwer:
 
     def get_url(self, *args, **kwargs):
         raise NotImplementedError("will impl in subclass")
-    
+
     def get_content(self, reporthook = None, path_to_download=None, proxies=None, chunksize=1024 * 50, *args, **kwargs):
         raise NotImplementedError("will impl in subclass")
 

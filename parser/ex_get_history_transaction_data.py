@@ -38,9 +38,9 @@ class GetHistoryTransactionData(BaseParser):
             hour = raw_time // 60
             minute = raw_time % 60
             second = direction % 10000
-            nature = direction #### 为了老用户接口的兼容性，已经转换为使用 nature_value
+            nature = direction #### For compatibility with old user interface, already converted to use nature_value
             value = direction // 10000
-            # 对于大于59秒的值，属于无效数值
+            # For values greater than 59 seconds, it's an invalid value
             if second > 59:
                 second = 0
             date = datetime.datetime(year, month, day, hour, minute, second)
@@ -49,44 +49,44 @@ class GetHistoryTransactionData(BaseParser):
                 direction = 1
                 if zengcang > 0:
                     if volume > zengcang:
-                        nature_name = "多开"
+                        nature_name = "Long Open"
                     elif volume == zengcang:
-                        nature_name = "双开"
+                        nature_name = "Double Open"
                 elif zengcang == 0:
-                    nature_name = "多换"
+                    nature_name = "Long Switch"
                 else:
                     if volume == -zengcang:
-                        nature_name = "双平"
+                        nature_name = "Double Close"
                     else:
-                        nature_name = "空平"
+                        nature_name = "Short Close"
             elif value == 1:
                 direction = -1
                 if zengcang > 0:
                     if volume > zengcang:
-                        nature_name = "空开"
+                        nature_name = "Short Open"
                     elif volume == zengcang:
-                        nature_name = "双开"
+                        nature_name = "Double Open"
                 elif zengcang == 0:
-                    nature_name = "空换"
+                    nature_name = "Short Switch"
                 else:
                     if volume == -zengcang:
-                        nature_name = "双平"
+                        nature_name = "Double Close"
                     else:
-                        nature_name = "多平"
+                        nature_name = "Long Close"
             else:
                 direction = 0
                 if zengcang > 0:
                     if volume > zengcang:
-                        nature_name = "开仓"
+                        nature_name = "Open Position"
                     elif volume == zengcang:
-                        nature_name = "双开"
+                        nature_name = "Double Open"
                 elif zengcang < 0:
                     if volume > -zengcang:
-                        nature_name = "平仓"
+                        nature_name = "Close Position"
                     elif volume == -zengcang:
-                        nature_name = "双平"
+                        nature_name = "Double Close"
                 else:
-                    nature_name = "换手"
+                    nature_name = "Switch"
 
             if market in [31,48]:
                 if nature == 0:
@@ -107,7 +107,7 @@ class GetHistoryTransactionData(BaseParser):
                 ("volume", volume),
                 ("zengcang", zengcang),
                 ("natrue_name", nature_name),
-                ("nature_name", nature_name), #修正了nature_name的拼写错误(natrue), 为了保持兼容性，原有的natrue_name还会保留一段时间
+                ("nature_name", nature_name), #Fix nature_name spelling error (natrue), to maintain compatibility, original natrue_name will be kept for a period of time
                 ("direction", direction),
                 ("nature", nature),
 

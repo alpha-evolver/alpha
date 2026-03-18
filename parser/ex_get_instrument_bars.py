@@ -47,13 +47,13 @@ class GetInstrumentBars(BaseParser):
         #count
         last_value = 0x00f00000
         pkg.extend(struct.pack('<B9sHHIH', market, code, category, 1, start, count))
-                                                                # 这个1还不确定是什么作用，疑似和是否复权有关
+                                                                # This 1 is not confirmed yet, suspected to be related to adjustment type (forward/backward adjustment)
         self.send_pkg = pkg
 
     def parseResponse(self, body_buf):
         pos = 0
 
-        # 算了，前面不解析了，没太大用
+        # Calculate, previous part is not parsed, not very useful
         # (market, code) = struct.unpack("<B9s", body_buf[0: 10])
         pos += 18
         (ret_count, ) = struct.unpack('<H', body_buf[pos: pos+2])

@@ -2,7 +2,7 @@
 """
 Created on Mon Aug 21 14:24:31 2017
 
-Trade 模块需要配合AlfeTradeServer使用...
+Trade module needs to work with AlfeTradeServer...
 
 @author: Alpha
 """
@@ -27,22 +27,22 @@ except ImportError as e:
 class AlfeTradeApiParams:
 
     """
-    0 资金
-    1 股份
-    2 当日委托
-    3 当日成交
-    4 可撤单
-    5 股东代码
-    6 融资余额
-    7 融券余额
-    8 可融证券
+    0 Cash
+    1 Shares
+    2 Today's Orders
+    3 Today's Trades
+    4 Cancelable Orders
+    5 Shareholder Code
+    6 Margin Loan Balance
+    7 Stock Loan Balance
+    8 Marginable Securities
     9
     10
     11
-    12 可申购新股查询
-    13 新股申购额度查询
-    14 配号查询
-    15 中签查询
+    12 New Stock Subscription Query
+    13 New Stock Quota Query
+    14 Allocation Number Query
+    15 Winning Query
     """
     QUERY_CATEGORY_CASH     = 0
     QUERY_CATEGORY_STOCKS   = 1
@@ -209,10 +209,10 @@ class AlfeTradeApi(object):
 
     def send_orders(self, client_id, orders):
         """
-        发送订单
+        Send orders
         :param client_id:
         :param orders:
-        格式
+        Format
         [
             {
                 "category": xx,
@@ -239,10 +239,10 @@ class AlfeTradeApi(object):
 
     def cancel_orders(self, client_id, orders):
         """
-        撤销订单
+        Cancel orders
         :param client_id:
         :param orders:
-        格式
+        Format
         [
             {
                 "exchange_id": xx,
@@ -274,7 +274,7 @@ if __name__ == "__main__":
     result = api.ping()
     print(result)
 
-    print("---登入---")
+    print("---Login---")
     acc = os.getenv("ALFE_ACCOUNT", "")
     password = os.getenv("ALFE_PASS", "")
     result = api.logon("202.108.253.186", 7708,
@@ -287,23 +287,18 @@ if __name__ == "__main__":
         client_id = result["data"]["client_id"]
 
         for i in (0,1,2,3,4,5,6,7,8,12,13,14,15):
-            print("---查询信息 cate=%d--" % i)
+            print("---Query info cate=%d--" % i)
             print(api.data_to_df(api.query_data(client_id, i)))
 
 
-        print("---查询报价---")
+        print("---Query quotes---")
         print(api.data_to_df(api.get_quote(client_id, '600315')))
 
-        print("---批量查询报价---")
+        print("---Batch query quotes---")
         print(api.data_to_df(api.get_quotes(client_id, ['600315', '000001'])))
 
-        print("---批量查询信息")
+        print("---Batch query info")
         print(api.data_to_df(api.query_datas(client_id, [0,1,2])))
 
-        print("---登出---")
+        print("---Logout---")
         print(api.logoff(client_id))
-
-
-
-
-

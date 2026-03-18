@@ -10,13 +10,13 @@ import six
 """
 b1cb74000c1f1876006f100091009100010000303030303031b884ce4912000100bcc6330103cf2f018999d149c0f92f48e0bab94a700dd24b000000000000000052b89e3ee52e334f00000000b0c5f74a6078904a203db54800000000000000009a65574c881d464d006dd34b00000000000000004019fb4a802b1549405cdbcc7157d7cc00000000e028fb4ae0a2bd4ae0a2bd4a3f87844c3d0a2f4100004040
 
-市场    证券代码        流通股本        所属省份        所属行业        财务更新
-日期    上市日期        总股本  国家股  发起人法人股    法人股  B股     H股
-职工股  总资产  流动资产        固定资产        无形资产        股东人数
-流动负债        长期负债        资本公积金      净资产  主营收入        主营利润
-        应收帐款        营业利润        投资收益        经营现金流      总现金流
-        存货    利润总额        税后利润        净利润  未分利润        保留
-保留
+Market  Security Code   Outstanding Shares  Province   Industry   Financial Update
+Date    Listing Date    Total Shares   State Shares   Sponsor Legal Shares   Legal Shares   B Shares   H Shares
+Employee Shares   Total Assets   Current Assets   Fixed Assets   Intangible Assets   Number of Shareholders
+Current Liabilities   Long-term Liabilities   Capital Reserve   Net Assets   Main Revenue   Main Profit
+        Accounts Receivable   Operating Profit   Investment Income   Operating Cash Flow   Total Cash Flow
+        Inventory   Total Profit   After-tax Profit   Net Profit   Undistributed Profit   Reserved
+Reserved
 0       000001  1691799.000000  18      1       20170428        19910403
 1717041.125000  180199.000000   6086000.000000  27532000.000000 0.000000
 0.000000        0.310000        3006194944.000000       0.000000        8119000.

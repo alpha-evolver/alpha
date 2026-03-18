@@ -53,7 +53,7 @@ class BaseParser(object):
 
     def setParams(self, *args, **xargs):
         """
-        构建请求
+        Build request
         :return:
         """
         pass
@@ -124,18 +124,18 @@ class BaseParser(object):
                 self.client.last_api_recv_bytes = last_api_recv_bytes
 
                 if len(buf) == 0:
-                    log.debug("接收数据体失败服务器断开连接")
-                    raise ResponseRecvFails("接收数据体失败服务器断开连接")
+                    log.debug("Failed to receive data body, server disconnected")
+                    raise ResponseRecvFails("Failed to receive data body, server disconnected")
                 if zipsize == unzipsize:
-                    log.debug("不需要解压")
+                    log.debug("No decompression needed")
                 else:
-                    log.debug("需要解压")
+                    log.debug("Decompression needed")
                     if sys.version_info[0] == 2:
                         unziped_data = zlib.decompress(buffer(body_buf))
                     else:
                         unziped_data = zlib.decompress(body_buf)
                     body_buf = unziped_data
-                    ## 解压
+                    ## Decompress
                 if DEBUG:
                     log.debug("recv body: ")
                     log.debug(body_buf)
@@ -145,4 +145,3 @@ class BaseParser(object):
             else:
                 log.debug("head_buf is not 0x10")
                 raise ResponseHeaderRecvFails("head_buf is not 0x10 : " + str(head_buf))
-

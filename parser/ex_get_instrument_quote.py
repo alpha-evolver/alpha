@@ -12,10 +12,10 @@ import struct
 tradex result:
 
 ﻿
-市场    代码    昨收    开盘    最高    最低    现价    开仓    持仓    总量
-现量    内盘    外盘    买一价  买二价  买三价  买四价  买五价  买一量  买二量
-买三量  买四量  买五量  卖一价  卖二价  卖三价  卖四价  卖五价  卖一量  卖二量
-卖三量  卖四量  卖五量  仓差    日期
+Market    Code    Pre Close    Open    High    Low    Price    Open Pos    Position    Total Vol
+Vol       Inside    Outside    Bid1    Bid2    Bid3    Bid4    Bid5    Bid Vol1    Bid Vol2
+Bid Vol3    Bid Vol4    Bid Vol5    Ask1    Ask2    Ask3    Ask4    Ask5    Ask Vol1    Ask Vol2
+Ask Vol3    Ask Vol4    Ask Vol5    Pos Diff    Date
 47      IF1709  3718.199951     3717.199951     3724.000000     3696.600098
 3703.000000     2043    13340   1728    3       869     859     3702.800049
 0.000000        0.000000        0.000000        0.000000        1       0
@@ -81,7 +81,7 @@ class GetInstrumentQuote(BaseParser):
         # jump 4
         pos += 4
 
-        ## 持仓 ((13340,), 66),
+        ## Position ((13340,), 66),
 
         (pre_close, open_price, high, low, price, kaicang, _,
          zongliang, xianliang, _ , neipan, waipai,

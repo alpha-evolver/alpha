@@ -56,7 +56,7 @@ class AlfeHq_API(BaseSocketClient):
 
     # API List
 
-    # Notice：，如果一个股票当天停牌，那天的K线还是能取到，成交量为0
+    # Note: If a stock is suspended on a trading day, the K-line for that day can still be retrieved, with volume = 0
     @update_last_ack_time
     def get_security_bars(self, category, market, code, start, count):
         cmd = GetSecurityBarsCmd(self.client, lock=self.lock)
@@ -72,12 +72,12 @@ class AlfeHq_API(BaseSocketClient):
     @update_last_ack_time
     def get_security_quotes(self, all_stock, code=None):
         """
-        支持三种形式的参数
+        Supports three forms of parameters:
         get_security_quotes(market, code )
         get_security_quotes((market, code))
         get_security_quotes([(market1, code1), (market2, code2)] )
-        :param all_stock （market, code) 的数组
-        :param code{optional} code to query
+        :param all_stock: array of (market, code)
+        :param code{optional}: code to query
         :return:
         """
 
@@ -176,8 +176,8 @@ class AlfeHq_API(BaseSocketClient):
         """
         Download file from proxy server
 
-        :param filename the filename to download
-        :param filesize the filesize to download , if you do not known the actually filesize, leave this value 0
+        :param filename: the filename to download
+        :param filesize: the filesize to download, if you do not know the actual filesize, leave this value 0
         """
         filecontent = bytearray(filesize)
         current_downloaded_size = 0
@@ -203,17 +203,17 @@ class AlfeHq_API(BaseSocketClient):
         self.get_security_count(random.randint(0, 1))
 
     def get_k_data(self, code, start_date, end_date):
-        # 具体详情参见 https://github.com/alpha-evolver/alfe/issues/5
-        # 具体详情参见 https://github.com/alpha-evolver/alfe/issues/21
+        # For details, see https://github.com/alpha-evolver/alfe/issues/5
+        # For details, see https://github.com/alpha-evolver/alfe/issues/21
         def __select_market_code(code):
             code = str(code)
             if code[0] in ['5', '6', '9'] or code[:3] in ["009", "126", "110", "201", "202", "203", "204"]:
                 return 1
             return 0
-        # 新版一劳永逸偷懒写法zzz
+        # New lazy one-size-fits-all approach zzz
         market_code = 1 if str(code)[0] == '6' else 0
         # https://github.com/alpha-evolver/alfe/issues/33
-        # 0 - 深圳， 1 - 上海
+        # 0 - Shenzhen, 1 - Shanghai
 
         data = pd.concat([self.to_df(self.get_security_bars(9, __select_market_code(
             code), code, (9 - i) * 800, 800)) for i in range(10)], axis=0)
@@ -229,47 +229,47 @@ if __name__ == '__main__':
 
     api = AlfeHq_API()
     if api.connect('101.227.73.20', 7709):
-        log.info("获取股票行情")
+        log.info("Get stock quotes")
         stocks = api.get_security_quotes([(0, "000001"), (1, "600300")])
         pprint.pprint(stocks)
-        log.info("获取k线")
+        log.info("Get K-lines")
         data = api.get_security_bars(9, 0, '000001', 4, 3)
         pprint.pprint(data)
-        log.info("获取 深市 股票数量")
+        log.info("Get Shenzhen stock count")
         pprint.pprint(api.get_security_count(0))
-        log.info("获取股票列表")
+        log.info("Get stock list")
         stocks = api.get_security_list(1, 255)
         pprint.pprint(stocks)
-        log.info("获取指数k线")
+        log.info("Get index K-lines")
         data = api.get_index_bars(9, 1, '000001', 1, 2)
         pprint.pprint(data)
-        log.info("查询分时行情")
+        log.info("Query intraday quotes")
         data = api.get_minute_time_data(ALFEParams.MARKET_SH, '600300')
         pprint.pprint(data)
-        log.info("查询历史分时行情")
+        log.info("Query historical intraday quotes")
         data = api.get_history_minute_time_data(
             ALFEParams.MARKET_SH, '600300', 20161209)
         pprint.pprint(data)
-        log.info("查询分时成交")
+        log.info("Query intraday transactions")
         data = api.get_transaction_data(ALFEParams.MARKET_SZ, '000001', 0, 30)
         pprint.pprint(data)
-        log.info("查询历史分时成交")
+        log.info("Query historical intraday transactions")
         data = api.get_history_transaction_data(
             ALFEParams.MARKET_SZ, '000001', 0, 10, 20170209)
         pprint.pprint(data)
-        log.info("查询公司信息目录")
+        log.info("Query company info category")
         data = api.get_company_info_category(ALFEParams.MARKET_SZ, '000001')
         pprint.pprint(data)
-        log.info("读取公司信息-最新提示")
+        log.info("Read company info - latest notes")
         data = api.get_company_info_content(0, '000001', '000001.txt', 0, 10)
         pprint.pprint(data)
-        log.info("读取除权除息信息")
+        log.info("Read ex-rights/ex-dividend info")
         data = api.get_xdxr_info(1, '600300')
         pprint.pprint(data)
-        log.info("读取财务信息")
+        log.info("Read financial info")
         data = api.get_finance_info(0, '000001')
         pprint.pprint(data)
-        log.info("日线级别k线获取函数")
+        log.info("Daily K-line fetch function")
         data = api.get_k_data('000001', '2017-07-01', '2017-07-10')
         pprint.pprint(data)
 

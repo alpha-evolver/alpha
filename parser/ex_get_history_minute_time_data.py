@@ -16,7 +16,7 @@ class GetHistoryMinuteTimeData(BaseParser):
         self.send_pkg = pkg
 
     def parseResponse(self, body_buf):
-        #        print('测试', body_buf)
+        #        print('Test', body_buf)
         #        fileobj = open("//Users//wy//data//a.bin", 'wb')  # make partfile
         #        fileobj.write(body_buf)  # write data into partfile
         #        fileobj.close()

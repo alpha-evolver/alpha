@@ -30,7 +30,7 @@ class GetTransactionData(BaseParser):
             hour = raw_time // 60
             minute = raw_time % 60
             second = direction % 10000
-            nature = direction ### 保持老接口的兼容性
+            nature = direction ### Maintaining old interface compatibility
 
             if second > 59:
                 second = 0
@@ -43,44 +43,44 @@ class GetTransactionData(BaseParser):
                 direction = 1
                 if zengcang > 0:
                     if volume > zengcang:
-                        nature_name = "多开"
+                        nature_name = "Long Open"
                     elif volume == zengcang:
-                        nature_name = "双开"
+                        nature_name = "Double Open"
                 elif zengcang == 0:
-                    nature_name = "多换"
+                    nature_name = "Long Switch"
                 else:
                     if volume == -zengcang:
-                        nature_name = "双平"
+                        nature_name = "Double Close"
                     else:
-                        nature_name = "空平"
+                        nature_name = "Short Close"
             elif value == 1:
                 direction = -1
                 if zengcang > 0:
                     if volume > zengcang:
-                        nature_name = "空开"
+                        nature_name = "Short Open"
                     elif volume == zengcang:
-                        nature_name = "双开"
+                        nature_name = "Double Open"
                 elif zengcang == 0:
-                    nature_name = "空换"
+                    nature_name = "Short Switch"
                 else:
                     if volume == -zengcang:
-                        nature_name = "双平"
+                        nature_name = "Double Close"
                     else:
-                        nature_name = "多平"
+                        nature_name = "Long Close"
             else:
                 direction = 0
                 if zengcang > 0:
                     if volume > zengcang:
-                        nature_name = "开仓"
+                        nature_name = "Open Position"
                     elif volume == zengcang:
-                        nature_name = "双开"
+                        nature_name = "Double Open"
                 elif zengcang < 0:
                     if volume > -zengcang:
-                        nature_name = "平仓"
+                        nature_name = "Close Position"
                     elif volume == -zengcang:
-                        nature_name = "双平"
+                        nature_name = "Double Close"
                 else:
-                    nature_name = "换手"
+                    nature_name = "Switch"
 
             if market in [31,48]:
                 if nature == 0:

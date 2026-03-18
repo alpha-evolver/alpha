@@ -42,18 +42,20 @@ def main():
     finally:
         pass
 
-    # 2 确认是否要安装
+    # 2 Confirm installation
 
     to_say = """
-你好，您执行本命令将会启动AlfeTradeServer程序的安装流程，安装程序会安装AlfeTradeServer以及配置好其依赖的trade.dll,
+Hello, running this command will start the AlfeTradeServer installation process.
+The installer will install AlfeTradeServer and configure its dependency trade.dll.
 
-注意： trade.dll来源于网络，AlfeTradeServer仅对trade.dll做简单的封装，使其可以用于rest api ，并提供alfe调用。
-本程序没有对通达信的传输协议做任何研究，所有trade.dll和其绑定方式来源于网络。
+Note: trade.dll is from the internet, AlfeTradeServer only provides simple wrapper for trade.dll,
+making it available for REST API, and provides alfe calls.
+This program has not done any research on TDX transmission protocol, all trade.dll and its binding method are from the internet.
 
 [rest       ]   AlfeTradeServer : https://github.com/alpha-evolver/AlfeTradeServer
 [client api ]   alfe : https://github.com/alpha-evolver/alfe
 
-是否继续，将下载对应的trade.dll并配置。
+Do you want to continue? Will download the corresponding trade.dll and configure it.
 
 Created by alpha-evolver with love!
 
@@ -62,16 +64,16 @@ Created by alpha-evolver with love!
 
     yes_to_continue()
 
-    se("开始下载trade.dll...")
+    se("Starting to download trade.dll...")
     trade_dll_template = os.path.join(dll_path, "trade.dll")
     urlretrieve(TRADE_DLL_KEY, trade_dll_template)
-    se("下载完成....")
+    se("Download complete....")
 
-    se("为了可以使用trade.dll，需要绑定账号")
-    acc = click.prompt("请输入您的账号")
-    se("您输入的账号是 {}".format(acc), fg="green")
+    se("To use trade.dll, you need to bind an account")
+    acc = click.prompt("Please enter your account")
+    se("Your account is {}".format(acc), fg="green")
     sig = make_sig(acc)
-    se("正在生成可用的trade.dll绑定：sig is [{}]".format(sig))
+    se("Generating usable trade.dll binding: sig is [{}]".format(sig))
     with open(trade_dll_template, 'rb') as f:
         content = f.read()
 
@@ -84,9 +86,9 @@ Created by alpha-evolver with love!
         f.write(content[:start_offset])
         f.write(sig)
         f.write(content[start_offset + lenof_sig:])
-    se("写入完成，文件名称为 ： {}".format(real_trade_dll_path))
+    se("Write complete, file name: {}".format(real_trade_dll_path))
 
-    se("开始下载AlfeTradeServer....")
+    se("Starting to download AlfeTradeServer....")
     download_and_setup_alfe_trade_server(download_path, dll_path, real_trade_dll_name)
 
 
@@ -96,35 +98,35 @@ def download_and_setup_alfe_trade_server(download_path, dll_path, real_trade_dll
     print(download_path)
 
     if os.path.isfile(zip_file_path):
-        se("下载完成")
+        se("Download complete")
     else:
-        raise SystemExit("下载失败")
+        raise SystemExit("Download failed")
 
-    se("开始解压")
+    se("Starting to extract")
     zf = zipfile.ZipFile(file=zip_file_path)
     zf.extractall(dll_path)
     zf.close()
-    se("解压完成")
+    se("Extraction complete")
 
     config_file_content, bind_ip, bind_port, enc_key, enc_iv = gen_config_file(real_trade_dll_name)
 
     config_file_name = "AlfeTradeServer.ini"
     with open(os.path.join(dll_path, config_file_name), "w") as f:
         f.write(config_file_content)
-    se("配置文件写入完成，文件名 AlfeTradeServer.ini")
+    se("Config file written, file name AlfeTradeServer.ini")
     while True:
-        _dir = click.prompt("请选择程序放置的路径", "C:\\AlfeTradeServer")
+        _dir = click.prompt("Please select program installation path", "C:\\AlfeTradeServer")
         if os.path.exists(_dir):
-            click.secho("该目录已存在，请选择一个新的路径")
+            click.secho("Directory already exists, please select a new path")
         else:
             break
 
     os.makedirs(_dir)
     os.rmdir(_dir)
     shutil.copytree(dll_path, _dir)
-    se("复制完成！ 请在路径 {} 下运行 AlfeTradeServer.exe 启动服务".format(_dir), fg="green")
+    se("Copy complete! Please run AlfeTradeServer.exe in path {} to start the service".format(_dir), fg="green")
 
-    se("客户端您可以使用alfe的trade模块进行连接，下面是一小段示例代码演示如何初始化对象")
+    se("For client, you can use alfe's trade module to connect, below is a demo code showing how to initialize the object")
 
     demo_code = """
 import os
@@ -134,9 +136,9 @@ print("---Ping---")
 result = api.ping()
 print(result)
 
-print("---登入---")
-acc = os.getenv("ALFE_ACCOUNT", "") ###### 你的账号
-password = os.getenv("ALFE_PASS", "") ###### 你的密码
+print("---Login---")
+acc = os.getenv("ALFE_ACCOUNT", "") ###### Your account
+password = os.getenv("ALFE_PASS", "") ###### Your password
 result = api.logon("<ip addr>", 7708,
           "8.23", 32,
           acc, acc, password, "")
@@ -147,14 +149,14 @@ if result["success"]:
     client_id = result["data"]["client_id"]
 
     for i in (0,1,2,3,4,5,6,7,8,12,13,14,15):
-        print("---查询信息 cate=%d--" % i)
+        print("---Query info cate=%d--" % i)
         print(api.data_to_df(api.query_data(client_id, i)))
 
 
-    print("---查询报价---")
+    print("---Query quotes---")
     print(api.data_to_df(api.get_quote(client_id, '600315')))
 
-    print("---登出---")
+    print("---Logout---")
     print(api.logoff(client_id))
     """.format(bind_ip, bind_port, enc_key, enc_iv)
 
@@ -170,19 +172,19 @@ api = AlfeTradeApi(endpoint="http://{}:{}/api", enc_key=b"{}", enc_iv=b"{}")
     demo_path = os.path.join(_dir, "demo.py")
     with open(demo_path, "w") as f:
         f.write(demo_code)
-    se("alfe demo 演示代码在 {}".format(demo_path),fg="blue")
-    se("注意 v1.5版本之后已经支持多账号版本，关于如何配置使用多账号版本，请参考 https://github.com/alpha-evolver/AlfeTradeServer", fg="red")
+    se("alfe demo code is at {}".format(demo_path),fg="blue")
+    se("Note: v1.5+ supports multi-account version, for how to configure multi-account version, see https://github.com/alpha-evolver/AlfeTradeServer", fg="red")
     se("Happy Trading!", fg="green")
 
 
 def gen_config_file(real_trade_dll_name):
-    se("开始生成配置文件..")
+    se("Starting to generate config file..")
     random_uuid = uuid.uuid1().hex
     enc_key = random_uuid[:16]
     enc_iv = random_uuid[16:]
-    se("生成的enc_key = [{}] , enc_iv = [{}]".format(enc_key, enc_iv))
-    bind_ip = click.prompt('请输入绑定的ip地址', default="127.0.0.1")
-    bind_port = click.prompt('请输入绑定的端口号', default="19820")
+    se("Generated enc_key = [{}] , enc_iv = [{}]".format(enc_key, enc_iv))
+    bind_ip = click.prompt('Please enter bind IP address', default="127.0.0.1")
+    bind_port = click.prompt('Please enter bind port', default="19820")
     config_file_content = """bind={}
 port={}
 trade_dll_path={}
@@ -196,9 +198,9 @@ transport_enc_iv={}
 
 def yes_to_continue():
     while True:
-        c = click.prompt('是否继续，继续请输入y, 退出输入n? ', default="y")
+        c = click.prompt('Do you want to continue? Enter y to continue, n to exit? ', default="y")
         if c.lower() == 'n':
-            click.secho("您选择了退出")
+            click.secho("You chose to exit")
             raise SystemExit("need to exit")
         elif c.lower() == "y" or c == "":
             return
@@ -209,9 +211,9 @@ def make_sig(acc):
         acc = acc.encode("utf-8")
 
     a3 = 0x55e
-    # 奇数位
+    # Odd positions
     gpdm = acc[::2]
-    # print("奇数位 ：{}".format(gpdm))
+    # print("Odd positions: {}".format(gpdm))
 
     result = b""
     for c in gpdm:
@@ -254,4 +256,3 @@ if __name__ == '__main__':
         # gen_config_file()
     except SystemExit:
         exit()
-

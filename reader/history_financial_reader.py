@@ -3,18 +3,18 @@
 from alfe.reader.base_reader import BaseReader
 from alfe.crawler.history_financial_crawler import HistoryFinancialCrawler
 
-# 使用 history_financial_cralwer 里面的HistoryFinancialCrawler完成此功能，这个reader仅对其做简单的封装
+# Use HistoryFinancialCrawler in history_financial_crawler to complete this function, this reader only provides simple wrapper
 
 class HistoryFinancialReader(BaseReader):
 
     def get_df(self, data_file):
         """
-        读取历史财务数据文件，并返回pandas结果 ， 类似gpcw20171231.zip格式，具体字段含义参考
+        Read historical financial data file, and return pandas result, format like gpcw20171231.zip, for specific field meanings refer to
 
         https://github.com/alpha-evolver/alfe/issues/133
 
-        :param data_file: 数据文件地址， 数据文件类型可以为 .zip 文件，也可以为解压后的 .dat
-        :return: pandas DataFrame格式的历史财务数据
+        :param data_file: Data file path, data file type can be .zip file, or extracted .dat
+        :return: pandas DataFrame format historical financial data
         """
 
         crawler = HistoryFinancialCrawler()

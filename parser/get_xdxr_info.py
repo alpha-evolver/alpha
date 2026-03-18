@@ -19,39 +19,39 @@ get_volume ?
 """
 """
 
-        1 除权除息 002175 2008-05-29
-        2 送配股上市  000656 2015-04-29
-        3 非流通股上市 000656 2010-02-10
-        4 未知股本变动 600642 1993-07-19
-        5 股本变化 000656 2017-06-30
-        6 增发新股 600887 2002-08-20
-        7 股份回购  600619 2000-09-08
-        8 增发新股上市 600186 2001-02-14
-        9 转配股上市 600811 2017-07-25
-        10 可转债上市 600418 2006-07-07
-        11 扩缩股  600381 2014-06-27
-        12 非流通股缩股 600339 2006-04-10
-        13 送认购权证 600008 2006-04-19
-        14 送认沽权证 000932 2006-03-01
+        1 Ex-rights/Ex-dividend 002175 2008-05-29
+        2 Bonus/Rights Issue Listing  000656 2015-04-29
+        3 Non-tradable Shares Listing 000656 2010-02-10
+        4 Unknown Share Capital Change 600642 1993-07-19
+        5 Share Capital Change 000656 2017-06-30
+        6 New Share Issue 600887 2002-08-20
+        7 Share Buyback  600619 2000-09-08
+        8 New Share Issue Listing 600186 2001-02-14
+        9 Rights Transfer Listing 600811 2017-07-25
+        10 Convertible Bond Listing 600418 2006-07-07
+        11 Share Expansion/Contraction  600381 2014-06-27
+        12 Non-tradable Share Contraction 600339 2006-04-10
+        13 Subscription Warrant Issue 600008 2006-04-19
+        14 Put Warrant Issue 000932 2006-03-01
 
 """
 
 
 XDXR_CATEGORY_MAPPING = {
-    1 : "除权除息",
-    2 : "送配股上市",
-    3 : "非流通股上市",
-    4 : "未知股本变动",
-    5 : "股本变化",
-    6 : "增发新股",
-    7 : "股份回购",
-    8 : "增发新股上市",
-    9 : "转配股上市",
-    10 : "可转债上市",
-    11 : "扩缩股",
-    12 : "非流通股缩股",
-    13 : "送认购权证",
-    14 : "送认沽权证"
+    1 : "Ex-rights/Ex-dividend",
+    2 : "Bonus/Rights Issue Listing",
+    3 : "Non-tradable Shares Listing",
+    4 : "Unknown Share Capital Change",
+    5 : "Share Capital Change",
+    6 : "New Share Issue",
+    7 : "Share Buyback",
+    8 : "New Share Issue Listing",
+    9 : "Rights Transfer Listing",
+    10 : "Convertible Bond Listing",
+    11 : "Share Expansion/Contraction",
+    12 : "Non-tradable Share Contraction",
+    13 : "Subscription Warrant Issue",
+    14 : "Put Warrant Issue"
 }
 
 
@@ -158,12 +158,11 @@ if __name__ == '__main__':
     from alfe.hq import AlfeHq_API
     api = AlfeHq_API()
     with api.connect():
-        # 11 扩缩股
+        # 11 Share Expansion/Contraction
         print(api.to_df(api.get_xdxr_info(1, '600381')))
-        # 12 非流通股缩股
+        # 12 Non-tradable Share Contraction
         #print(api.to_df(api.get_xdxr_info(1, '600339')))
-        # 13 送认购权证
+        # 13 Subscription Warrant Issue
         #print(api.to_df(api.get_xdxr_info(1, '600008')))
-        # 14 送认沽权证
+        # 14 Put Warrant Issue
         #print(api.to_df(api.get_xdxr_info(0, '000932')))
-

@@ -7,25 +7,25 @@ import struct
 
 
 """
-获取股票数量 深市
+GetStockCount Shenzhen Market
 
-发送
+Send
 0c 0c 18 6c 00 01 08 00 08 00 4e 04 00 00 75 c7 33 01
 
 
-接收
+Receive
 Bc cb 74 00 0c 0c 18 6c 00 00 4e 04 02 00 02 00 e7 19
 
 In [61]: 0x19e7
 Out[61]: 6631
 
 
-沪市
+Shanghai Market
 
-发送
+Send
 0c 0c 18 6c 00 01 08 00 08 00 4e 04 01 00 75 c7 33 01
 
-接收
+Receive
 Bc cb 74 00 0c 0c 18 6c 00 00 4e 04 02 00 02 00 b3 33
 
 In [63]: 0x333b

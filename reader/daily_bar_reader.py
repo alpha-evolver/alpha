@@ -9,7 +9,7 @@ from alfe.reader.base_reader import AlfeFileNotFoundException, AlfeNotAssignVipd
 from alfe.reader.base_reader import BaseReader
 
 """
-读取通达信日线数据
+Read TongDaXin (TDX) Daily Bar Data
 """
 
 
@@ -22,7 +22,7 @@ class AlfeDailyBarReader(BaseReader):
     def generate_filename(self, code, exchange):
         
         if self.vipdoc_path == None:
-            raise AlfeNotAssignVipdocPathException(r"Please provide a vipdoc path , such as c:\\newalfe\\vipdoc")
+            raise AlfeNotAssignVipdocPathException(r"Please provide a vipdoc path, such as c:\\newalfe\\vipdoc")
 
         fname = os.path.join(self.vipdoc_path, exchange)
         fname = os.path.join(fname, 'lday')
@@ -54,7 +54,7 @@ class AlfeDailyBarReader(BaseReader):
     def get_df_by_file(self, fname):
 
         if not os.path.isfile(fname):
-            raise AlfeFileNotFoundException('no alfe kline data, pleaes check path %s', fname)
+            raise AlfeFileNotFoundException('no alfe kline data, please check path %s', fname)
             
         security_type = self.get_security_type(fname)
         if security_type not in self.SECURITY_TYPE:

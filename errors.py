@@ -3,18 +3,14 @@
 
 class AlfeConnectionError(Exception):
     """
-    当连接服务器出错的时候，会抛出的异常
+    Exception raised when connection to server fails
     """
     pass
 
 class AlfeFunctionCallError(Exception):
     """
-    当行数调用出错的时候
+    Exception raised when function call fails
     """
     def __init__(self, *args, **kwargs):
         super(AlfeFunctionCallError, self).__init__(*args, **kwargs)
         self.original_exception = None
-
-
-
-

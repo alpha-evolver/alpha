@@ -1,60 +1,60 @@
-# Alpha - A股行情数据接口 + 定量分析
-# Alpha 开发的券商行情协议接口包
+# Alpha - A-Share Market Data API + Quantitative Analysis
+# Broker market protocol interface package developed by Alpha
 #
-# 主要模块：
-# - hq: 行情数据接口
-# - reader: 数据读取器
-# - config: 服务器配置
-# - params: 参数定义
-# - quant: CFA定量分析
-# - indicators_v2: 双系统指标 + 止盈止损
+# Main modules:
+# - hq: Market data interface
+# - reader: Data readers
+# - config: Server configuration
+# - params: Parameter definitions
+# - quant: CFA quantitative analysis
+# - indicators_v2: Dual-system indicators + Take-profit/Stop-loss
 
-# 导出主要类
+# Export main classes
 from .hq import AlfeHq_API
 from .reader import AlfeDailyBarReader, AlfeMinBarReader
 from .params import *
 
-# 定量分析模块
+# Quantitative analysis module
 from .quant import QuantAnalyzer
 
-# 双系统指标 + 止盈止损
+# Dual-system indicators + Take-profit/Stop-loss
 from .indicators_v2 import (
-    # 手续费计算
+    # Fee calculation
     calc_fee,
     calc_net_return,
-    # 系统1
+    # System 1
     system1_analyze,
     system1_bollinger,
     system1_macd,
     system1_regime,
-    # 系统2
+    # System 2
     system2_analyze,
     system2_bollinger,
     system2_atr,
     system2_signals,
-    # 回测
+    # Backtesting
     run_backtest_with_stops,
     run_full_backtest,
     analyze_with_systems,
 )
 
-# 保持兼容性别名
+# Compatibility aliases
 TdxHq_API = AlfeHq_API
 TdxDailyBarReader = AlfeDailyBarReader
 TdxMinBarReader = AlfeMinBarReader
 
-# 版本
+# Version
 __version__ = "1.3.0"
 
 __all__ = [
     "AlfeHq_API",
     "TdxHq_API",
-    "AlfeDailyBarReader", 
+    "AlfeDailyBarReader",
     "AlfeMinBarReader",
     "TdxDailyBarReader",
     "TdxMinBarReader",
     "QuantAnalyzer",
-    # 双系统 + 止盈止损
+    # Dual-system + Take-profit/Stop-loss
     "calc_fee",
     "calc_net_return",
     "system1_analyze",

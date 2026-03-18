@@ -90,7 +90,7 @@ class GetIndexBarsCmd(BaseParser):
 
             pre_diff_base = price_open_diff + price_close_diff
 
-            #### 为了避免python处理浮点数的时候，浮点数运算不精确问题，这里引入了多余的代码
+            #### To avoid floating point precision issues in Python, introduce extra code here
 
             kline = OrderedDict([
                 ("open", open),

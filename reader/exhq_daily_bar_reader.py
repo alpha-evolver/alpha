@@ -9,7 +9,7 @@ from alfe.reader.base_reader import AlfeFileNotFoundException, AlfeNotAssignVipd
 from alfe.reader.base_reader import BaseReader
 
 """
-读取通达信数据
+Read TongDaXin Data
 """
 
 
@@ -33,7 +33,7 @@ class AlfeExHqDailyBarReader(BaseReader):
 
     def get_df(self, code_or_file):
 
-        # 只传入了一个参数
+        # Only pass one parameter
         data = [self._df_convert(row) for row in self.parse_data_by_file(code_or_file)]
 
         df = pd.DataFrame(data=data, columns=('date', 'open', 'high', 'low', 'close', 'amount', 'volume','jiesuan', 'hk_stock_amount'))
