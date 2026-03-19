@@ -1,124 +1,528 @@
 ---
 name: alfe
 description: >
-  A股市场数据获取与量化分析技能。触发场景：
-  - 用户查询A股股票数据（实时行情、K线、财务数据）
-  - 执行量化分析（统计、风险指标、回测）
-  - 双系统交易信号分析（趋势策略/投机策略）
-  - 运行回测验证交易策略
-  - 批量获取多只股票数据
-tags: [finance, quantitative, stock, china, api]
+  A股量化分析完整系统。触发场景：
+  - 获取A股数据（实时行情、K线、财务数据）
+  - 执行量化分析（统计、风险、回测）
+  - AI策略生成与机器学习
+  - 分布式回测（Ray + vectorbt）
+  - 组合优化与绩效评估
+  - 构建Dashboard可视化
+tags: [finance, quantitative, stock, china, ai, backtest]
 permissions: [network]
 metadata:
-  version: "1.3.0"
+  version: "2.0.0"
   author: "Alpha"
+  python_version: "3.10+"
 ---
 
-# Alfe - A股量化分析系统
+# Alfe - A股量化分析完整系统
 
-**Version 1.3.0 | Author: Alpha**
+**Version 2.0.0 | Author: Alpha**
+
+---
+
+## 系统架构 (System Architecture)
+
+### 数据流
+```
+Market Data → Factor → Signal → Backtest → Portfolio → Evaluation → Visualization
+```
+
+### 模块分层
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    Visualization Layer                      │
+│                    (plotly + dash)                        │
+├─────────────────────────────────────────────────────────────┤
+│                   Analytics Layer                          │
+│                   (quantstats)                             │
+├─────────────────────────────────────────────────────────────┤
+│                  Portfolio Layer                           │
+│                  (PyPortfolioOpt)                          │
+├─────────────────────────────────────────────────────────────┤
+│                  Backtest Layer                           │
+│         (vectorbt / backtrader / Qlib)                    │
+├─────────────────────────────────────────────────────────────┤
+│                  Signal Layer                              │
+│                  (TA-Lib + Custom)                        │
+├─────────────────────────────────────────────────────────────┤
+│                   Data Layer                              │
+│              (alfe.data + yfinance + Qlib)                │
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
 
 ## 边界定义 (Boundary Definition)
 
 ### 激活边界
 | 触发条件 | 行为 |
 |----------|------|
-| 询问股票数据/行情/价格 | 执行数据获取 |
-| 量化分析/统计/回测 | 执行分析模块 |
-| 双系统/交易信号/Bollinger | 执行指标系统 |
-| K线/分钟线/日线 | 执行K线获取 |
+| 询问A股数据/行情/价格 | 执行数据获取 (alfe.data) |
+| 量化分析/统计/风险指标 | 执行 analytics (quantstats) |
+| 技术指标/RSI/MACD/布林带 | 执行 factor (TA-Lib) |
+| 回测/模拟交易 | 执行 backtest (vectorbt/backtrader) |
+| 组合优化/权重分配 | 执行 portfolio (PyPortfolioOpt) |
+| AI策略/机器学习 | 执行 AI Layer (PyTorch/LightGBM) |
+| Dashboard/可视化 | 执行 visualization (dash/plotly) |
+| 分布式回测/参数搜索 | 执行 Ray + vectorbt |
 
-### 数据边界
+### 权限边界
 ```
 ✅ 允许:
-  - 网络: 券商行情服务器 (IP段 60-218.*, 123.*, 180.*)
-  - 端口: 7709, 80
-  - 数据: A股上市公司 (沪深主板、科创板、创业板)
-  - 频率: 批量请求间隔 ≥ 0.5s
+  - 网络: 券商行情服务器 (端口 7709, 80)
+  - 网络: PyPI (pip安装)
+  - 网络: GitHub (代码获取)
+  - 磁盘: 工作目录读写
 
 ❌ 禁止:
+  - 实盘交易指令 (仅分析，不执行)
   - 访问非声明的外部端点
-  - 存储用户账户信息
-  - 发送交易指令 (仅分析，不执行)
-  - 获取港股/美股/加密货币数据
+  - 修改系统Python环境
 ```
 
 ---
 
 ## 环境规范 (Environment Specification)
 
-### 依赖清单
-| 包名 | 版本 | 用途 |
-|------|------|------|
-| `numpy` | ≥1.20 | 数值计算 |
-| `pandas` | ≥1.3 | 数据处理 |
-| `scipy` | ≥1.7 | 统计分析 |
-| `Cython` | ≥0.29 | 编译加速 |
-
-### 服务器配置
-```python
-# 优先使用已验证服务器 (延迟 < 100ms)
-hq_hosts = [
-    ("杭州电信J1", "60.191.117.167", 7709),   # 高优先级
-    ("杭州电信J2", "115.238.56.198", 7709),   # 高优先级
-    ("上海电信Z1", "180.153.18.170", 7709),   # 高优先级
-    # 备用端口80
-    ("上海电信Z80", "180.153.18.172", 80),
-]
+### Python版本
+```
+Python: 3.10+
 ```
 
-### 服务器健康检查
-```bash
-# 连接测试 (端口7709)
-nc -zv 60.191.117.167 7709 -w 3
+### 核心依赖
+| 包名 | 版本 | 用途 |
+|------|------|------|
+| `numpy` | `1.26.x` | 数值计算 (vectorbt兼容关键) |
+| `pandas` | ≥2.0 | 数据处理 |
+| `scipy` | ≥1.10 | 统计分析 |
+| `ta-lib` | 最新 | 技术指标计算 |
+| `vectorbt` | ≥0.25 | 高速回测引擎 |
+| `backtrader` | 最新 | 事件驱动回测 |
+| `quantstats` | 最新 | 绩效分析 |
+| `pyportfolioopt` | 最新 | 组合优化 |
+| `plotly` | ≥5.0 | 可视化 |
+| `dash` | ≥2.0 | Dashboard |
 
-# 响应时间阈值: < 100ms 为健康
-# 连续失败3次: 切换备用服务器
+### 可选依赖
+| 包名 | 版本 | 用途 |
+|------|------|------|
+| `ray` | ≥2.0 | 分布式计算 |
+| `qlib` | 最新 | AI量化平台 |
+| `torch` | ≥2.0 | 深度学习 |
+| `lightgbm` | 最新 | 梯度提升 |
+| `xgboost` | 最新 | 梯度提升 |
+
+### 环境规则
+```
+✅ 强制规则:
+  - 所有库必须安装在同一Python环境
+  - 禁止system Python与venv混用
+  - 使用Docker固化环境
+
+✅ 版本锁定:
+  - numpy==1.26.x (vectorbt兼容性)
+  - setuptools==81.0.0 (避免pkg_resources问题)
+  - torch + CUDA版本必须匹配
+
+❌ 常见错误:
+  - vectorbt[full] 未加引号
+  - numpy 2.x 导致vectorbt崩溃
+  - tornado/telegram依赖冲突
 ```
 
 ---
 
-## 输入规范 (Input Specification)
+## 数据规范 (Data Specification)
 
-### 股票代码格式
-| 市场 | 格式 | 示例 |
-|------|------|------|
-| 上海 | `XXXXXX.SH` 或 `SH:XXXXXX` | `600519.SH`, `SH:600519` |
-| 深圳 | `XXXXXX.SZ` 或 `SZ:XXXXXX` | `000001.SZ`, `SZ:000001` |
-| 创业板 | `XXXXXX.SZ` | `300750.SZ` |
-| 科创板 | `XXXXXX.SH` | `688xxx.SH` |
-
-### K线类型枚举
-| 类型码 | 周期 | 最大数据点 |
-|--------|------|-----------|
-| `0` | 5分钟 | 800 |
-| `1` | 15分钟 | 800 |
-| `2` | 30分钟 | 800 |
-| `3` | 1小时 | 800 |
-| `4` | 日线 | 800 |
-| `5` | 周线 | 800 |
-| `6` | 月线 | 800 |
-| `8` | 1分钟 | 800 |
-| `9` | 日线(等效) | 800 |
-
-### API参数规范
+### A股数据源 (alfe.data)
 ```python
-# 获取K线
-api.get_security_bars(
-    period: int,      # K线类型 (0-11)
-    market: int,       # 0=深圳, 1=上海
-    code: str,         # 6位股票代码
-    start: int,        # 起始索引
-    count: int         # 获取数量 (max=800)
-) -> pd.DataFrame
+from alfe import QuantAnalyzer
 
-# 获取分时
-api.get_transaction_list(
-    market: int,
-    code: str,
-    start: int,
-    count: int         # max=2000
-) -> pd.DataFrame
+qa = QuantAnalyzer()
+qa.connect_auto()
+
+# 获取日K线
+bars = qa.api.get_security_bars(
+    period=9,      # 日线
+    market=1,      # 1=上海, 0=深圳
+    code='600519', # 6位股票代码
+    start=0,
+    count=60
+)
+
+qa.disconnect()
+```
+
+### 标准数据结构
+```python
+# OHLCV DataFrame
+{
+    'datetime': np.datetime64,
+    'open': float,     # 开盘价
+    'high': float,     # 最高价
+    'low': float,      # 最低价
+    'close': float,    # 收盘价
+    'volume': float    # 成交量
+}
+```
+
+### 数据验证规则
+| 字段 | 校验规则 |
+|------|----------|
+| `close` | > 0 且 < 10000 |
+| `high` | >= `low` |
+| `high` | >= `close` |
+| `volume` | >= 0 |
+| `datetime` | 递增，不重复 |
+
+---
+
+## 技术指标 (Factor Layer)
+
+### TA-Lib 使用
+```python
+import talib
+import numpy as np
+
+# 假设 data['close'] 是numpy数组
+close = data['close'].values
+
+# RSI
+rsi = talib.RSI(close, timeperiod=14)
+
+# MACD
+macd, signal, hist = talib.MACD(close, fastperiod=12, slowperiod=26, signalperiod=9)
+
+# 布林带
+upper, middle, lower = talib.BOLLBANDS(close, timeperiod=20, nbdevup=2, nbdevdn=2)
+
+# SMA/EMA
+sma = talib.SMA(close, timeperiod=20)
+ema = talib.EMA(close, timeperiod=20)
+
+# ATR
+high = data['high'].values
+low = data['low'].values
+atr = talib.ATR(high, low, close, timeperiod=14)
+```
+
+### 常用指标速查
+| 指标 | 函数 | 参数 |
+|------|------|------|
+| RSI | `talib.RSI` | timeperiod=14 |
+| MACD | `talib.MACD` | fast=12, slow=26, signal=9 |
+| 布林带 | `talib.BOLLBANDS` | period=20, nbdev=2 |
+| SMA | `talib.SMA` | timeperiod |
+| EMA | `talib.EMA` | timeperiod |
+| ATR | `talib.ATR` | timeperiod=14 |
+| ADX | `talib.ADX` | timeperiod=14 |
+| OBV | `talib.OBV` | - |
+| CCI | `talib.CCI` | timeperiod=14 |
+| Stochastic | `talib.STOCH` | fastk=14, slowk=3 |
+
+---
+
+## 信号生成 (Signal Layer)
+
+### 双系统交易信号
+
+**系统1: 趋势策略**
+```
+输入: df (OHLCV)
+处理:
+  1. Bollinger Bands (20, 2)
+  2. MACD (12, 26, 9)
+  3. 信号:
+     - Buy: price > upper_band AND MACD > signal
+     - Sell: price < middle_band
+     - Hold: 其他
+输出: {advice, signals, indicators}
+```
+
+**系统2: 投机策略**
+```
+输入: df (OHLCV)
+处理:
+  1. Bollinger Bands (20, 2)
+  2. ATR (14)
+  3. 信号:
+     - Buy: price > upper_band AND volume > avg_volume
+     - Stop-loss: price < entry - 2*ATR
+     - Take-profit: price > entry + 3*ATR
+输出: {advice, signals, atr_value, sl, tp}
+```
+
+### AI策略生成
+```python
+import pandas as pd
+import talib
+from sklearn.ensemble import RandomForestClassifier
+
+# 特征工程
+df['rsi'] = talib.RSI(df['close'])
+df['ma20'] = talib.SMA(df['close'], timeperiod=20)
+df['ma50'] = talib.SMA(df['close'], timeperiod=50)
+
+# 标签: 未来N日上涨=1
+N = 5
+df['label'] = (df['close'].shift(-N) > df['close']).astype(int)
+
+df = df.dropna()
+X = df[['rsi', 'ma20', 'ma50', 'volume']]
+y = df['label']
+
+# 模型训练
+model = RandomForestClassifier(n_estimators=100)
+model.fit(X, y)
+
+# 预测信号
+df['signal'] = model.predict(X)
+```
+
+---
+
+## 回测引擎 (Backtest Layer)
+
+### 三种执行模式
+
+| 模式 | 工具链 | 特点 |
+|------|--------|------|
+| **Research** | TA-Lib → vectorbt → quantstats → plotly | 快速验证、大规模参数搜索 |
+| **Production** | TA-Lib → backtrader → quantstats → dash | 结构稳定、接近实盘 |
+| **AI Mode** | Qlib → Feature → Model → Backtest | 因子挖掘、ML驱动 |
+
+### vectorbt 高速回测
+```python
+import vectorbt as vbt
+import pandas as pd
+
+# 假设 price 是收盘价Series
+price = pd.Series(data['close'])
+
+# 移动平均交叉策略
+fast_ma = price.rolling(10).mean()
+slow_ma = price.rolling(50).mean()
+
+entries = fast_ma > slow_ma
+exits = fast_ma < slow_ma
+
+# 向量化回测
+pf = vbt.Portfolio.from_signals(
+    price,
+    entries,
+    exits,
+    init_cash=100000,
+    commission=0.001,  # 0.1%
+)
+
+# 绩效指标
+returns = pf returns()
+sharpe = returns.mean() / returns.std() * (252 ** 0.5)
+max_dd = pf.max_drawdown()
+
+print(f"Total Return: {pf.total_return():.2%}")
+print(f"Sharpe Ratio: {sharpe:.2f}")
+print(f"Max Drawdown: {max_dd:.2%}")
+```
+
+### backtrader 事件回测
+```python
+import backtrader as bt
+
+class MyStrategy(bt.Strategy):
+    def __init__(self):
+        self.ma = bt.indicators.SMA(self.data.close, period=20)
+    
+    def next(self):
+        if self.data.close > self.ma:
+            self.buy()
+        elif self.data.close < self.ma:
+            self.sell()
+
+cerebro = bt.Cerebro()
+cerebro.addstrategy(MyStrategy)
+
+data = bt.feeds.PandasData(dataname=df)
+cerebro.adddata(data)
+cerebro.run()
+cerebro.plot()
+```
+
+### 参数网格搜索
+```python
+import vectorbt as vbt
+
+# 网格搜索最佳参数
+param_grid = {
+    'fast_period': [5, 10, 15, 20],
+    'slow_period': [20, 30, 50, 100]
+}
+
+pf = vbt.Param(
+    fast_period=param_grid['fast_period'],
+    slow_period=param_grid['slow_period']
+).run(
+    vbt.nbfunc(lambda fast, slow: 
+        (price.rolling(fast).mean() > price.rolling(slow).mean()).astype(int)
+    )
+)
+
+# 找出最佳参数
+best_idx = pf.total_return().idxmax()
+print(f"Best params: {best_idx}")
+print(f"Best return: {pf.total_return()[best_idx]:.2%}")
+```
+
+---
+
+## 组合优化 (Portfolio Layer)
+
+### PyPortfolioOpt
+```python
+from pypfolioopt import EfficientFrontier, risk_models, expected_returns
+
+# 计算收益率矩阵
+mu = expected_returns.mean_historical_return(df)
+Sigma = risk_models.sample_cov(df)
+
+# 组合优化
+ef = EfficientFrontier(mu, Sigma)
+
+# 最大夏普比率
+weights = ef.max_sharpe()
+clean_weights = ef.clean_weights()
+
+print(clean_weights)
+
+# 转换为dict
+portfolio = {k: v for k, v in clean_weights.items() if v > 0.01}
+```
+
+### 优化目标
+| 目标 | 方法 |
+|------|------|
+| 最大夏普 | `ef.max_sharpe()` |
+| 最小波动 | `ef.min_volatility()` |
+| 最大收益 | `ef.max_quadratic_utility()` |
+| 目标收益 | `ef.efficient_return(target_return)` |
+| 目标风险 | `ef.efficient_risk(target_volatility)` |
+
+---
+
+## 绩效分析 (Analytics Layer)
+
+### quantstats
+```python
+import quantstats as qs
+
+# 假设 returns 是日收益率序列
+returns = df['close'].pct_change().dropna()
+
+# 完整报告
+qs.reports.full(returns)
+
+# 关键指标
+sharpe = qs.sharpe_ratio(returns)
+sortino = qs.sortino_ratio(returns)
+max_dd = qs.max_drawdown(returns)
+cagr = qs.cagr(returns)
+
+# 收益分析
+qs.plots.snapshot(returns, title='Strategy Performance')
+
+# 输出HTML报告
+qs.reports.html(returns, output='report.html')
+```
+
+### 绩效指标
+| 指标 | 计算方式 | 理想值 |
+|------|----------|--------|
+| Sharpe | (均值/标准差) × √252 | > 1.5 |
+| Sortino | (均值/下行标准差) × √252 | > 1.5 |
+| Calmar | CAGR / MaxDD | > 1 |
+| Win Rate | 盈利交易/总交易 | > 50% |
+| Profit Factor | 总盈利/总亏损 | > 1.5 |
+| Max Drawdown | 最大回撤 | < 20% |
+| CAGR | 年化复合增长率 | > 15% |
+
+---
+
+## 可视化 (Visualization Layer)
+
+### plotly K线图
+```python
+import plotly.graph_objects as go
+
+fig = go.Figure(data=[go.Candlestick(
+    x=df['datetime'],
+    open=df['open'],
+    high=df['high'],
+    low=df['low'],
+    close=df['close']
+)])
+
+fig.add_trace(go.Scatter(
+    x=df['datetime'],
+    y=df['ma20'],
+    mode='lines',
+    name='MA20'
+))
+
+fig.show()
+```
+
+### Dash Dashboard
+```python
+from dash import Dash, html, dcc
+import plotly.express as px
+
+app = Dash(__name__)
+
+app.layout = html.Div([
+    html.H1('量化策略 Dashboard'),
+    dcc.Graph(id='equity-curve', figure=fig),
+    dcc.Graph(id='drawdown', figure=dd_fig),
+])
+
+app.run_server(debug=True)
+```
+
+---
+
+## 分布式回测 (Distributed Backtest)
+
+### Ray + vectorbt
+```python
+import ray
+import vectorbt as vbt
+import pandas as pd
+
+ray.init()
+
+@ray.remote
+def run_backtest(window):
+    price = pd.Series(...)
+    ma = price.rolling(window).mean()
+    entries = price > ma
+    exits = price < ma
+    
+    pf = vbt.Portfolio.from_signals(price, entries, exits)
+    return pf.total_return()
+
+windows = list(range(5, 200))
+
+# 并行执行
+results = ray.get([run_backtest.remote(w) for w in windows])
+
+print(f"Best window: {windows[np.argmax(results)]}")
+```
+
+### 核心认知
+```
+vectorbt = 计算引擎
+Ray = 分布式调度器
 ```
 
 ---
@@ -129,16 +533,18 @@ api.get_transaction_list(
 ```json
 {
   "status": "success",
+  "module": "backtest",
   "data": {
-    "code": "600519.SH",
-    "name": "贵州茅台",
-    "timestamp": "2026-03-19T15:00:00",
-    "fields": ["date", "open", "high", "low", "close", "volume", "turnover"]
+    "total_return": 0.25,
+    "sharpe_ratio": 1.85,
+    "max_drawdown": -0.12,
+    "win_rate": 0.55,
+    "trades": 142
   },
   "meta": {
-    "count": 60,
-    "server": "杭州电信J1",
-    "latency_ms": 45
+    "duration_ms": 1234,
+    "engine": "vectorbt",
+    "params": {...}
   }
 }
 ```
@@ -148,317 +554,192 @@ api.get_transaction_list(
 {
   "status": "error",
   "code": "ERR_ALFE_001",
+  "module": "data",
   "message": "连接服务器失败",
-  "details": {
-    "host": "60.191.117.167",
-    "port": 7709,
-    "reason": "Connection timeout"
-  },
   "recovery": "retry_alternative_server"
 }
 ```
 
 ### 错误码表
-| 错误码 | 含义 | HTTP处理 |
-|--------|------|----------|
-| `ERR_ALFE_001` | 服务器连接失败 | retry 3x → 切换备用 |
-| `ERR_ALFE_002` | 股票代码无效 | 返回格式提示 |
-| `ERR_ALFE_003` | 数据请求超限 | 拆分请求 |
-| `ERR_ALFE_004` | 网络超时 | retry 3x 指数退避 |
-| `ERR_ALFE_005` | 服务器拒绝 | 等待10s重试 |
-| `ERR_ALFE_006` | 数据解析失败 | 返回原始响应 |
+| 错误码 | 含义 | 模块 | 处理 |
+|--------|------|------|------|
+| `ERR_DATA_001` | 数据源连接失败 | data | retry 3x → 切换 |
+| `ERR_DATA_002` | 股票代码无效 | data | 返回格式提示 |
+| `ERR_DATA_003` | 数据验证失败 | data | 跳过+记录 |
+| `ERR_FACTOR_001` | 指标计算异常 | factor | 返回NaN |
+| `ERR_BACKTEST_001` | 回测引擎错误 | backtest | 重置+报告 |
+| `ERR_PORTFOLIO_001` | 优化失败 | portfolio | 返回等权 |
+| `ERR_RAY_001` | Ray集群连接失败 | distributed | 本地降级 |
 
 ---
 
 ## 工作流 (Workflow)
 
-### Phase 1: 连接初始化 (Connection Init)
-**进入条件**: 首次调用或连接断开  
-**步骤**:
-1. 读取 `config/hosts.py` → 服务器列表
-2. 按优先级尝试连接 → 测试延迟
-3. 选择延迟 < 100ms 的服务器
-4. 建立Socket连接
-
-**验证点**: `socket.connected == True`
-**退出条件**: 连接成功或所有服务器失败
-
-**备选策略**:
-```python
-# 依次尝试:
-# 1. 高优先级服务器 (端口7709)
-# 2. 备用服务器 (端口80)
-# 3. 全部失败 → ERR_ALFE_001
-```
-
-### Phase 2: 数据获取 (Data Fetch)
-**进入条件**: 连接已建立  
+### Phase 1: 数据获取
+**进入条件**: 请求市场数据
 **步骤**:
 1. 验证股票代码格式
-2. 构建请求包 → `struct.pack`
-3. 发送请求 → `socket.send`
-4. 接收响应 → `socket.recv`
-5. 解析数据 → `parser.parse`
+2. 连接数据源 (alfe/yfinance/Qlib)
+3. 获取OHLCV数据
+4. 数据验证
 
-**验证点**: 返回非空DataFrame
-**退出条件**: 数据返回或超时
+**产出**: 清洗后的DataFrame
 
-**限流控制**:
-- 单次请求: 间隔 0.1s
-- 批量请求: 间隔 0.5s
-- 超限处理: 队列 + 延迟
+### Phase 2: 因子计算
+**进入条件**: 数据可用
+**步骤**:
+1. 计算技术指标 (TA-Lib)
+2. 生成特征
+3. 异常值处理
 
-### Phase 3: 数据验证 (Data Validation)
-**进入条件**: 数据已获取  
-**验证规则**:
-| 字段 | 校验规则 |
-|------|----------|
-| `close` | > 0 且 < 10000 |
-| `volume` | >= 0 |
-| `date` | 格式 YYYY-MM-DD |
-| `high` | >= `low` |
-| `high` | >= `close` |
+**产出**: 包含指标的DataFrame
 
-**验证点**: 所有规则通过
-**失败处理**: 返回 `None` + 记录日志
+### Phase 3: 信号生成
+**进入条件**: 因子完成
+**分支**:
+| 策略类型 | 工具 |
+|----------|------|
+| 规则策略 | 自定义条件 |
+| AI策略 | ML模型预测 |
 
-### Phase 4: 量化分析 (Quantitative Analysis)
-**进入条件**: 数据验证通过  
-**分析流程**:
-1. 计算日收益率 → `(close - prev_close) / prev_close`
-2. 统计指标 → 均值、标准差、偏度、峰度
-3. 风险指标 → VaR、CVaR、Sharpe、Beta
-4. 生成报告 → 格式化输出
+### Phase 4: 回测执行
+**进入条件**: 信号可用
+**分支**:
+| 模式 | 工具 | 场景 |
+|------|------|------|
+| 快速验证 | vectorbt | 参数搜索 |
+| 生产验证 | backtrader | 详细分析 |
+| ML策略 | Qlib | AI策略 |
 
-**产出**:
-```python
-{
-    "returns": np.array,           # 日收益率序列
-    "mean": float,                 # 日均收益
-    "std": float,                 # 日波动率
-    "sharpe": float,              # Sharpe比率
-    "var_95": float,              # 95% VaR
-    "max_drawdown": float,        # 最大回撤
-}
-```
+### Phase 5: 组合优化
+**进入条件**: 多策略/多资产
+**步骤**:
+1. 计算协方差矩阵
+2. 选择优化目标
+3. 生成权重
 
-### Phase 5: 双系统分析 (Dual-System Analysis)
-**进入条件**: K线数据可用 (≥22条)  
-**系统1: 趋势策略**
-```
-输入: df (OHLCV), code
-处理:
-  1. 计算 Bollinger Bands (20,2)
-  2. 计算 MACD (12,26,9)
-  3. 信号逻辑:
-     - Buy: price > upper_band AND MACD > signal
-     - Sell: price < middle_band
-     - Hold: 其他
-输出: {advice, signals, indicators}
-```
+### Phase 6: 绩效评估
+**进入条件**: 回测完成
+**步骤**:
+1. 计算指标 (quantstats)
+2. 生成报告
+3. 可视化
 
-**系统2: 投机策略**
-```
-输入: df (OHLCV), code
-处理:
-  1. 计算 Bollinger Bands (20,2)
-  2. 计算 ATR (14)
-  3. 信号逻辑:
-     - Buy: price > upper_band AND volume > avg_volume
-     - Stop-loss: price < entry - 2*ATR
-     - Take-profit: price > entry + 3*ATR
-输出: {advice, signals, atr_value, sl, tp}
-```
-
-**验证点**: 输出包含 `advice` 字段
-**退出条件**: 策略完成
-
-### Phase 6: 回测执行 (Backtest Execution)
-**进入条件**: 策略信号可用  
-**参数规范**:
-```python
-run_full_backtest(
-    df,                    # DataFrame (必需)
-    profit_target: float,  # 止盈比例 (默认0.02=2%)
-    trailing_percent: float, # 追踪止损 (默认0.02=2%)
-    shares: int,          # 交易股数 (默认100)
-    commission: float     # 手续费 (默认0.0003=0.03%)
-)
-```
-
-**佣金规则**:
-- 买卖双向: 0.03%
-- 最低消费: ¥5/笔
-- 印花税: 0.1% (卖出时)
-
-**产出指标**:
-| 指标 | 字段名 | 计算方式 |
-|------|--------|----------|
-| 总交易次数 | `total_trades` | 计数 |
-| 胜率 | `win_rate` | 盈利交易/总交易 |
-| 总收益率 | `total_return` | (期末-期初)/期初 |
-| 夏普比率 | `sharpe_ratio` | 均值/标准差×√252 |
-| 最大回撤 | `max_drawdown` | 最大跌幅 |
-| 盈亏比 | `profit_loss_ratio` | 均盈利/均亏损 |
+### Phase 7: 部署展示
+**进入条件**: 策略验证通过
+**步骤**:
+1. 构建Dashboard
+2. 配置报警
+3. 部署服务
 
 ---
 
 ## 决策矩阵 (Decision Matrix)
 
-### 服务器选择
-| 条件 | 操作 | 备选 |
+### 数据源选择
+| 条件 | 操作 | 工具 |
 |------|------|------|
-| 延迟 < 50ms | 使用当前服务器 | - |
-| 延迟 50-100ms | 记录警告，使用 | 监控 |
-| 延迟 > 100ms | 尝试下一服务器 | 标记为低优先级 |
-| 全部 > 200ms | 使用最低延迟 | 记录告警 |
+| A股实时数据 | alfe.data | `QuantAnalyzer` |
+| A股历史数据 | alfe.data | `get_security_bars` |
+| 美股/港股数据 | yfinance | `yfinance.download` |
+| 完整Pipeline | Qlib | `D.features` |
 
-### 数据获取策略
+### 回测引擎选择
+| 条件 | 操作 | 工具 |
+|------|------|------|
+| 快速验证/参数搜索 | vectorbt | `vbt.Portfolio.from_signals` |
+| 详细交易逻辑 | backtrader | `Cerebro.run()` |
+| ML驱动策略 | Qlib | `RLTrader` |
+| 多进程参数扫描 | Ray | `@ray.remote` |
+
+### 组合优化选择
+| 条件 | 操作 | 工具 |
+|------|------|------|
+| 最大夏普 | `max_sharpe()` | PyPortfolioOpt |
+| 最小波动 | `min_volatility()` | PyPortfolioOpt |
+| 目标收益 | `efficient_return()` | PyPortfolioOpt |
+| 风险预算 | `efficient_risk()` | PyPortfolioOpt |
+
+### 信号生成选择
 | 条件 | 操作 | 说明 |
 |------|------|------|
-| 单只股票 | 直接请求 | 单次调用 |
-| 批量 < 10只 | 循环请求 | 间隔0.5s |
-| 批量 ≥ 10只 | 异步队列 | 间隔1s，最大并发3 |
-| 数据量 > 800 | 分页请求 | start参数分页 |
-
-### K线数据选择
-| 分析目的 | 推荐周期 | 数据量 |
-|----------|----------|--------|
-| 短期信号 | 1分钟/5分钟 | 60-100 |
-| 日内交易 | 15分钟/30分钟 | 80 |
-| 波段交易 | 日线 | 60-120 |
-| 趋势分析 | 周线/月线 | 52/24 |
+| 规则策略 | TA-Lib + 自定义条件 | 确定性高 |
+| AI策略 | ML模型预测 | 需训练数据 |
+| 双系统 | 内置趋势+投机 | 已编译优化 |
 
 ---
 
 ## 循环控制 (Loop Control)
 
+### 参数扫描
 | 参数 | 值 | 说明 |
 |------|-----|------|
-| `max_retries` | 3 | 单服务器重试次数 |
-| `retry_delay_ms` | 1000 | 重试间隔基数 |
-| `backoff_multiplier` | 2 | 退避倍数 |
-| `max_backoff_ms` | 8000 | 最大退避时间 |
-| `connection_timeout_ms` | 5000 | 连接超时 |
-| `read_timeout_ms` | 3000 | 读取超时 |
+| `max_combinations` | 10000 | 最大参数组合数 |
+| `batch_size` | 100 | Ray批处理大小 |
+| `timeout_per_run` | 60s | 单次回测超时 |
+| `total_timeout` | 3600s | 整体任务超时 |
 
-**终止条件**:
-1. 数据获取成功
-2. 达到 `max_retries`
-3. 手动取消 (Ctrl+C)
-4. 超时 `connection_timeout_ms`
+### 重试策略
+| 场景 | 重试次数 | 退避策略 |
+|------|----------|----------|
+| 网络请求 | 3 | 1s → 2s → 4s |
+| 数据获取 | 3 | 0.5s → 1s → 2s |
+| 回测执行 | 1 | 不重试 |
+| Ray任务 | 2 | 5s → 10s |
+
+### 资源限制
+| 资源 | 限制 | 说明 |
+|------|------|------|
+| CPU | 8核 | 本地并行上限 |
+| GPU | 1块 | 训练使用 |
+| 内存 | 16GB | 单次回测 |
+| 磁盘 | 10GB | 缓存+报告 |
 
 ---
 
-## 示例 (Examples)
+## AI执行提示 (AI Execution Hints)
 
-### 基础数据获取
-```python
-from alfe import QuantAnalyzer
-
-qa = QuantAnalyzer()
-qa.connect_auto()
-
-# 获取日K线
-bars = qa.api.get_security_bars(
-    period=9,      # 日线
-    market=1,      # 上海
-    code='600519', # 贵州茅台
-    start=0,
-    count=60
-)
-print(bars.tail())
-
-qa.disconnect()
+```
+优先使用 vectorbt 进行策略验证
+需要交易逻辑时使用 backtrader
+需要机器学习时使用 Qlib
+所有结果必须通过 quantstats 评估
+所有输出应支持 plotly 可视化
+分布式回测使用 Ray + vectorbt
 ```
 
-### 双系统分析
+---
+
+## 快速开始 (Quick Start)
+
+### 最小可运行系统
+```bash
+pip install vectorbt[full] ta-lib quantstats plotly
+```
+
+### 完整系统
+```bash
+pip install vectorbt backtrader qlib ta-lib
+pip install pyportfolioopt quantstats dash
+pip install ray torch lightgbm
+```
+
+### 首次使用
 ```python
+import alfe
+
+# 获取数据
+data = alfe.get_data('600519.SH', period='daily', count=60)
+
+# 技术分析
 from alfe import analyze_with_systems
+result = analyze_with_systems(data, '600519.SH')
 
-# df: DataFrame with OHLCV columns
-result = analyze_with_systems(df, '600519.SH')
-
-print("趋势策略:", result['system1']['advice'])
-print("投机策略:", result['system2']['advice'])
-print("ATR:", result['system2']['atr_value'])
-```
-
-### 完整回测
-```python
+# 回测
 from alfe import run_full_backtest
+bt_result = run_full_backtest(data)
 
-result = run_full_backtest(
-    df,
-    profit_target=0.02,      # 2%止盈
-    trailing_percent=0.02,   # 2%追踪止损
-    shares=100
-)
-
-print(f"总交易: {result['total_trades']}")
-print(f"胜率: {result['win_rate']}")
-print(f"总收益: {result['total_return']}%")
-```
-
-### 批量分析
-```python
-from alfe import batch_analyze
-
-stocks = ['600519.SH', '000001.SZ', '300750.SZ']
-results = batch_analyze(stocks, periods=[4, 5])
-
-for code, data in results.items():
-    print(f"{code}: Sharpe={data['sharpe']:.2f}")
-```
-
----
-
-## 标准报告格式 (Report Format)
-
-```
-============================================================
-A-Share Market Quantitative Analysis Report
-============================================================
-股票代码: 600519.SH (贵州茅台)
-数据周期: 最近60个交易日
-分析窗口: 最近22个交易日
-============================================================
-
-一、价格走势
-----------------------------------------
-收盘价: 1850.00 → 1920.00
-期间涨幅: +3.78%
-
-二、风险收益指标
-----------------------------------------
-日均收益率:  0.18%
-日收益标准差: 1.52%
-年化波动率:  24.14%
-夏普比率:    0.75
-
-三、风险指标
-----------------------------------------
-95% VaR:    -2.65%
-CVaR:       -3.82%
-最大回撤:   -8.45%
-Beta:       0.85
-
-四、交易信号
-----------------------------------------
-系统1 (趋势): Buy
-系统2 (投机): Hold
-  - ATR: 42.50
-  - 止损位: 1805.00
-  - 止盈位: 1977.50
-
-五、回测结果
-----------------------------------------
-总交易次数: 488
-胜率:       51.8%
-总收益率:   519.95%
-夏普比率:    1.42
-最大回撤:   -12.3%
-============================================================
+print(f"收益率: {bt_result['total_return']:.2%}")
 ```
 
 ---
@@ -467,22 +748,25 @@ Beta:       0.85
 
 ### 数据层面
 - [ ] 股票代码格式验证
-- [ ] K线数据完整性检查
-- [ ] 复权处理 (前复权/后复权)
+- [ ] OHLCV完整性检查
 - [ ] 停牌日期处理
 - [ ] 涨跌停限制
 
-### 分析层面
-- [ ] 收益率计算正确性
-- [ ] 年化指标标准化
-- [ ] VaR/CVaR计算方法
-- [ ] 回测佣金精确
+### 因子层面
+- [ ] NaN值处理
+- [ ] 极端值裁剪
+- [ ] 前向看漏检查
+
+### 回测层面
+- [ ] 前向偏差检查
+- [ ] 过拟合风险评估
+- [ ] 交易成本计算
+- [ ] 滑点模拟
 
 ### 系统层面
-- [ ] 服务器连接健康检查
-- [ ] 失败重试机制
-- [ ] 批量限流控制
-- [ ] 超时处理
+- [ ] 依赖版本兼容性
+- [ ] 内存使用监控
+- [ ] 执行时间预算
 
 ---
 
@@ -490,7 +774,6 @@ Beta:       0.85
 
 | 版本 | 日期 | 变更 |
 |------|------|------|
+| 2.0.0 | 2026-03-19 | 整合量化技术栈，添加AI/分布式能力 |
 | 1.3.0 | 2026-03-18 | 双系统交易信号正式发布 |
-| 1.2.0 | 2026-03-15 | 量化分析增强，VaR/CVaR |
-| 1.1.0 | 2026-03-10 | 回测引擎完善 |
 | 1.0.0 | 2026-03-01 | 初始版本 |
